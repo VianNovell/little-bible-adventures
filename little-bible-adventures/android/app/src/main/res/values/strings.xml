@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Little Bible Adv</string>
+    <string name="title_activity_main">Little Bible Adv</string>
+    <string name="package_name">com.bibleadventures.app</string>
+    <string name="custom_url_scheme">com.bibleadventures.app</string>
+</resources>

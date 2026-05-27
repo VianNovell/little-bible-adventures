@@ -1,0 +1,104 @@
+.container {
+    padding: var(--spacing-lg) var(--spacing-md);
+    padding-bottom: 100px;
+    background: var(--background);
+    min-height: 100%;
+}
+
+.header {
+    height: 72px;
+    background: #FFFFFF;
+    /* Explicit white background */
+    display: flex;
+    justify-content: space-between;
+    /* Push items apart: Logo Left, Subtitle Right */
+    align-items: center;
+    padding-left: 24px;
+    padding-right: 24px;
+    /* Ensure right padding for subtitle */
+    /* Pull header to edges if container has padding */
+    margin-left: -16px;
+    /* Assuming var(--spacing-md) is roughly 16px */
+    margin-right: -16px;
+    margin-top: -24px;
+    /* Assuming var(--spacing-lg) is roughly 24px */
+    margin-bottom: var(--spacing-xl);
+    border-bottom: 1px solid var(--border);
+    /* Optional: separator */
+}
+
+.logoRow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.title {
+    font-family: var(--font-heading);
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+}
+
+.avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 16px;
+    /* Squircle */
+    object-fit: cover;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border: 2px solid var(--surface);
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.avatar:hover {
+    transform: scale(1.05);
+}
+
+.emptyState {
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-xl);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-lg);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+    border: 1px solid var(--border);
+}
+
+.emptyIcon {
+    width: 80px;
+    height: 80px;
+    background: rgba(108, 59, 245, 0.05);
+    border-radius: 50%;
+    /* Circle */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: var(--spacing-sm);
+}
+
+.emptyTitle {
+    font-family: var(--font-heading);
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+}
+
+.emptyText {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    max-width: 260px;
+    line-height: 1.5;
+}
+
+.grid {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}

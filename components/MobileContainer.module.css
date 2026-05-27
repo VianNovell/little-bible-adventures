@@ -1,0 +1,30 @@
+.container {
+    min-height: 100vh;
+    width: 100vw;
+    background-color: #000000;
+    /* Neutral Dark for desktop background */
+    display: flex;
+    justify-content: center;
+}
+
+.content {
+    width: 100%;
+    max-width: 480px;
+    /* Mobile width constraint */
+    background-color: var(--background);
+    min-height: 100vh;
+    position: relative;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+}
+
+@media (max-width: 480px) {
+    .container {
+        background-color: var(--background);
+    }
+
+    .content {
+        box-shadow: none;
+    }
+}

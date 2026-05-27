@@ -1,0 +1,73 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: var(--spacing-md);
+    min-height: 80vh;
+}
+
+.nav {
+    padding: var(--spacing-sm) 0;
+}
+
+.backLink {
+    display: inline-flex;
+    padding: 8px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.05);
+    color: var(--text-primary);
+    transition: background 0.2s;
+}
+
+.backLink:hover {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xl);
+    margin-top: var(--spacing-xl);
+}
+
+.header {
+    text-align: center;
+}
+
+.header h1 {
+    font-family: var(--font-heading);
+    font-size: 1.5rem;
+    margin-bottom: var(--spacing-xs);
+}
+
+.phoneNumber {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+}
+
+.otpInput input {
+    text-align: center;
+    font-size: 1.5rem;
+    letter-spacing: 0.5rem;
+}
+
+.resend {
+    text-align: center;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.resendLink {
+    background: none;
+    border: none;
+    color: var(--primary);
+    font-weight: 600;
+    cursor: pointer;
+}

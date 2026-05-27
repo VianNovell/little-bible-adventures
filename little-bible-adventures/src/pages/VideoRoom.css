@@ -1,0 +1,50 @@
+.video-room-page {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 80px); /* Fill screen minus navbar */
+  background-color: var(--bg-color);
+}
+
+.video-room-header {
+  display: flex;
+  align-items: center;
+  padding: 1rem 2rem;
+  background-color: var(--card-bg);
+  box-shadow: var(--shadow-sm);
+  z-index: 10;
+}
+
+.video-room-header h2 {
+  flex: 1;
+  text-align: center;
+  margin: 0;
+  color: var(--primary-color);
+  margin-right: 150px; /* offset back button to keep title centered */
+}
+
+.back-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+}
+
+.video-container {
+  flex: 1;
+  width: 100%;
+  background-color: #000;
+}
+
+.jitsi-iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+@media (max-width: 768px) {
+  .video-room-header h2 {
+    margin-right: 0;
+    font-size: 1.2rem;
+  }
+}

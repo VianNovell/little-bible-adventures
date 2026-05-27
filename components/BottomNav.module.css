@@ -1,0 +1,93 @@
+/* Bottom Nav Styles - Reforge Green Theme */
+.nav {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 480px;
+    height: 76px;
+    background: #FFFFFF;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding-bottom: env(safe-area-inset-bottom);
+    z-index: 100;
+    box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.03);
+}
+
+@media (min-width: 481px) {
+    .nav {
+        border-left: 1px solid var(--border);
+        border-right: 1px solid var(--border);
+    }
+}
+
+.navItem {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: var(--text-secondary);
+    gap: 4px;
+    flex: 1;
+    height: 100%;
+    font-size: 0.7rem;
+    font-weight: 500;
+}
+
+.active {
+    color: var(--primary);
+    /* Green */
+    font-weight: 600;
+}
+
+.label {
+    letter-spacing: -0.01em;
+}
+
+.badge {
+    position: absolute;
+    top: 12px;
+    right: 28px;
+    background: var(--danger);
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid white;
+}
+
+.fabContainer {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    top: -24px;
+    height: 0;
+}
+
+.fab {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--primary);
+    box-shadow: 0 4px 12px rgba(0, 168, 84, 0.4);
+    /* Green shadow */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.fab:active {
+    transform: scale(0.95);
+}

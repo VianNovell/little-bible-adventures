@@ -1,0 +1,16 @@
+{
+  "name": "SocialPay",
+  "short_name": "SocialPay",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#6C3BF5",
+  "theme_color": "#6C3BF5",
+  "description": "Gamified social savings group app.",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
