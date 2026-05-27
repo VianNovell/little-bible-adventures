@@ -17,7 +17,7 @@ interface BibleBook {
   title: string;
   category: 'Old Testament' | 'New Testament';
   summary: string;
-  emoji: string;
+  img: string;
   colorClass: string;
   link?: string;
 }
@@ -98,38 +98,29 @@ export default function Dashboard() {
   const books: BibleBook[] = [
     {
       id: 1,
-      title: 'Genesis',
+      title: "Little Bible Adventures: Noah's Ark",
       category: 'Old Testament',
-      summary: 'The beginning of everything: creation, Noah\'s ark, and God\'s promises.',
-      emoji: '🌍',
+      summary: 'Follow Noah and the animals in this beautifully illustrated adventure of faith, obedience, and God\'s rainbow promise.',
+      img: '/noah.png',
       colorClass: 'card-yellow',
-      link: '#'
+      link: '#' // User will replace with their actual Amazon link
     },
     {
       id: 2,
-      title: 'Exodus',
+      title: 'Little Bible Adventures: David and Goliath',
       category: 'Old Testament',
-      summary: 'The exciting journey of Moses leading God\'s people to freedom.',
-      emoji: '🌊',
+      summary: 'Discover how a brave young shepherd boy defeated a giant warrior using trust, courage, and a single tiny stone.',
+      img: '/david.png',
       colorClass: 'card-blue',
       link: '#'
     },
     {
       id: 3,
-      title: 'Matthew',
-      category: 'New Testament',
-      summary: 'The story of Jesus\' birth, teachings, miracles, and great love.',
-      emoji: '✝️',
-      colorClass: 'card-green',
-      link: '#'
-    },
-    {
-      id: 4,
-      title: 'Psalms',
+      title: 'Little Bible Adventures: Esther the Brave',
       category: 'Old Testament',
-      summary: 'Beautiful songs, prayers, and praises to thank God and find comfort.',
-      emoji: '🎵',
-      colorClass: 'card-purple',
+      summary: 'Learn about Queen Esther\'s courageous stand to rescue her people, proving anyone can be used by God for great things.',
+      img: '/esther.png',
+      colorClass: 'card-green',
       link: '#'
     }
   ];
@@ -276,28 +267,28 @@ export default function Dashboard() {
         {activeTab === 'books' && (
           <div className="content-grid">
             {filteredBooks.map(book => (
-              <div key={book.id} className={`card session-card ${book.colorClass}`}>
-                <div className="session-icon" style={{ fontSize: '2.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  {book.emoji}
-                </div>
-                <div className="session-details">
+              <div key={book.id} className="card dashboard-card">
+                <img src={book.img} alt={book.title} className="card-image" style={{ height: '220px', objectFit: 'cover' }} />
+                <div className="card-body">
                   <span className="badge badge-group">{book.category}</span>
-                  <h3>{book.title}</h3>
-                  <p className="session-host" style={{ minHeight: '3.5rem', display: 'flex', alignItems: 'center' }}>{book.summary}</p>
+                  <h3 style={{ marginTop: '0.5rem', fontSize: '1.2rem', lineHeight: '1.3' }}>{book.title}</h3>
+                  <p style={{ fontSize: '0.85rem', color: '#64748b', margin: '0.5rem 0 1.25rem', minHeight: '3.5rem', lineHeight: '1.4' }}>
+                    {book.summary}
+                  </p>
                   <a 
                     href={book.link} 
                     target={book.link !== '#' ? '_blank' : undefined} 
                     rel="noopener noreferrer" 
-                    className="btn btn-secondary mt-3" 
-                    style={{ textDecoration: 'none', display: 'inline-block', textAlign: 'center' }}
+                    className="btn btn-primary w-100" 
+                    style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
                     onClick={(e) => {
                       if (book.link === '#') {
                         e.preventDefault();
-                        alert(`${book.title} link will be uploaded shortly by your teacher! Stay tuned! ✨`);
+                        alert(`Amazon link for ${book.title} is coming soon! Stay tuned! 🛒`);
                       }
                     }}
                   >
-                    Open Book 📖
+                    Buy on Amazon 🛒
                   </a>
                 </div>
               </div>
