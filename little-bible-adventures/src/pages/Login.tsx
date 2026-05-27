@@ -8,22 +8,37 @@ export default function Login() {
   const location = useLocation();
   const { login } = useAuth();
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Simple mock logic: if email has 'teacher' log in as teacher, etc.
-    if (email.includes('teacher')) {
-      login('teacher');
-    } else if (email.includes('parent')) {
-      login('parent');
+    if (email.toLowerCase().trim() === 'viankamanzi50@gmail.com') {
+      if (password.trim() === '78910') {
+        await login('teacher');
+        localStorage.setItem('teacherAuth', 'true');
+        localStorage.setItem('teacherName', 'Vian');
+        const queryParams = new URLSearchParams(location.search);
+        const redirectUrl = queryParams.get('redirect') || '/teacher-dashboard';
+        navigate(redirectUrl);
+      } else {
+        setError('Incorrect password for teacher account.');
+      }
     } else {
-      login('student');
+      if (email.toLowerCase().includes('teacher')) {
+        setError('Access denied. Generic teacher logins are disabled. Please use the authorized teacher account.');
+        return;
+      }
+      if (email.toLowerCase().includes('parent')) {
+        await login('parent');
+      } else {
+        await login('student');
+      }
+      const queryParams = new URLSearchParams(location.search);
+      const redirectUrl = queryParams.get('redirect') || '/dashboard';
+      navigate(redirectUrl);
     }
-    
-    const queryParams = new URLSearchParams(location.search);
-    const redirectUrl = queryParams.get('redirect') || '/activities';
-    navigate(redirectUrl);
   };
 
   return (
@@ -50,6 +65,12 @@ export default function Login() {
               />
             </div>
             
+            {error && (
+              <div className="auth-error" style={{ color: '#e74c3c', fontSize: '0.9rem', marginBottom: '1rem', textAlign: 'center', fontWeight: 500 }}>
+                {error}
+              </div>
+            )}
+
             <div className="input-group">
               <label htmlFor="password">Password</label>
               <input 
@@ -57,6 +78,8 @@ export default function Login() {
                 id="password" 
                 className="input-control" 
                 placeholder="Enter your password" 
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 required 
               />
             </div>

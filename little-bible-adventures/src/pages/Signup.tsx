@@ -11,16 +11,24 @@ export default function Signup() {
   const queryParams = new URLSearchParams(location.search);
   const initialGroup = queryParams.get('group') || '';
   const [ageGroup, setAgeGroup] = useState(initialGroup);
+  const [error, setError] = useState('');
 
   const handleSignup = (e: React.FormEvent) => {
     e.preventDefault();
-    const email = (document.getElementById('email') as HTMLInputElement).value;
+    const emailInput = (document.getElementById('email') as HTMLInputElement).value.toLowerCase().trim();
     
-    // Simple mock logic: if email has 'teacher' sign up as teacher, etc.
-    let selectedRole: 'teacher' | 'parent' | 'student' = 'student';
-    if (email.includes('teacher')) {
-      selectedRole = 'teacher';
-    } else if (email.includes('parent')) {
+    if (emailInput === 'viankamanzi50@gmail.com') {
+      setError('This email is reserved for the authorized teacher account and cannot be registered.');
+      return;
+    }
+    
+    if (emailInput.includes('teacher')) {
+      setError('Teacher registration is restricted. Please contact your administrator.');
+      return;
+    }
+    
+    let selectedRole: 'parent' | 'student' = 'student';
+    if (emailInput.includes('parent')) {
       selectedRole = 'parent';
     }
     
@@ -42,6 +50,11 @@ export default function Signup() {
           </div>
           
           <form className="auth-form" onSubmit={handleSignup}>
+            {error && (
+              <div className="auth-error" style={{ color: '#e74c3c', fontSize: '0.9rem', marginBottom: '1rem', textAlign: 'center', fontWeight: 500 }}>
+                {error}
+              </div>
+            )}
             <div className="input-group">
               <label htmlFor="name">Full Name</label>
               <input 
