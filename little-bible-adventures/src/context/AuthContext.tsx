@@ -24,7 +24,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (data?.session?.user) {
         // Recover and set active role from session metadata or email format
         const email = data.session.user.email || '';
-        const role = email.includes('teacher') ? 'teacher' : email.includes('parent') ? 'parent' : 'student';
+        const role = (email.includes('viankamanzi50@gmail.com') || email.includes('teacher')) ? 'teacher' : email.includes('parent') ? 'parent' : 'student';
         localStorage.setItem('userRole', role);
         setUserRole(role);
 
@@ -60,7 +60,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
       
-      const resolvedRole = email.includes('teacher') ? 'teacher' : email.includes('parent') ? 'parent' : 'student';
+      const resolvedRole = (email.includes('viankamanzi50@gmail.com') || email.includes('teacher')) ? 'teacher' : email.includes('parent') ? 'parent' : 'student';
       localStorage.setItem('userRole', resolvedRole);
       setUserRole(resolvedRole);
 

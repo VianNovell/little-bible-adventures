@@ -21,7 +21,7 @@ class MockSupabaseClient {
     },
     async signInWithPassword({ email }: { email: string }) {
       console.log('[Mock DB] Sign In:', email);
-      const userRole = email.includes('teacher') ? 'teacher' : email.includes('parent') ? 'parent' : 'student';
+      const userRole = (email.includes('viankamanzi50@gmail.com') || email.includes('teacher')) ? 'teacher' : email.includes('parent') ? 'parent' : 'student';
       const user = { id: 'mock-user-id', email, role: userRole };
       return { data: { user, session: { user, access_token: 'mock-token' } }, error: null };
     },
