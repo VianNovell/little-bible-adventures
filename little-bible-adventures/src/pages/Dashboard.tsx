@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Calendar, PlayCircle, BookHeart, MonitorPlay, X } from 'lucide-react';
+import { Calendar, PlayCircle, BookHeart, MonitorPlay, BookMarked, X } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 import './Dashboard.css';
 
@@ -12,21 +12,32 @@ interface Story {
   text: string;
 }
 
+interface BibleBook {
+  id: number;
+  title: string;
+  category: 'Old Testament' | 'New Testament';
+  summary: string;
+  emoji: string;
+  colorClass: string;
+  link?: string;
+}
+
 export default function Dashboard() {
   const navigate = useNavigate();
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
-  const initialTab = queryParams.get('tab') === 'sessions' ? 'sessions' : 'posts';
+  const tabParam = queryParams.get('tab');
+  const initialTab = (tabParam === 'sessions' || tabParam === 'books') ? tabParam : 'posts';
   
   const initialGroup = queryParams.get('group') || 'all';
-  const [activeTab, setActiveTab] = useState<'posts' | 'sessions'>(initialTab);
+  const [activeTab, setActiveTab] = useState<'posts' | 'sessions' | 'books'>(initialTab);
   const [activeGroup, setActiveGroup] = useState(initialGroup);
   const [selectedStory, setSelectedStory] = useState<Story | null>(null);
   const [showCongratulations, setShowCongratulations] = useState(false);
 
   useEffect(() => {
     const tab = queryParams.get('tab');
-    if (tab === 'sessions' || tab === 'posts') {
+    if (tab === 'sessions' || tab === 'posts' || tab === 'books') {
       setActiveTab(tab);
     }
 
@@ -84,8 +95,48 @@ export default function Dashboard() {
     { id: 3, title: 'Deep Dive: Chosen', time: 'Sunday 11:00 AM', group: '10-12', host: 'Pastor John' },
   ];
 
+  const books: BibleBook[] = [
+    {
+      id: 1,
+      title: 'Genesis',
+      category: 'Old Testament',
+      summary: 'The beginning of everything: creation, Noah\'s ark, and God\'s promises.',
+      emoji: '🌍',
+      colorClass: 'card-yellow',
+      link: '#'
+    },
+    {
+      id: 2,
+      title: 'Exodus',
+      category: 'Old Testament',
+      summary: 'The exciting journey of Moses leading God\'s people to freedom.',
+      emoji: '🌊',
+      colorClass: 'card-blue',
+      link: '#'
+    },
+    {
+      id: 3,
+      title: 'Matthew',
+      category: 'New Testament',
+      summary: 'The story of Jesus\' birth, teachings, miracles, and great love.',
+      emoji: '✝️',
+      colorClass: 'card-green',
+      link: '#'
+    },
+    {
+      id: 4,
+      title: 'Psalms',
+      category: 'Old Testament',
+      summary: 'Beautiful songs, prayers, and praises to thank God and find comfort.',
+      emoji: '🎵',
+      colorClass: 'card-purple',
+      link: '#'
+    }
+  ];
+
   const filteredPosts = activeGroup === 'all' ? posts : posts.filter(p => p.group === activeGroup);
   const filteredSessions = activeGroup === 'all' ? sessions : sessions.filter(s => s.group === activeGroup);
+  const filteredBooks = books;
 
   const handleDoneReading = async () => {
     if (!selectedStory) return;
@@ -178,6 +229,9 @@ export default function Dashboard() {
             <button className={`tab-btn ${activeTab === 'sessions' ? 'active' : ''}`} onClick={() => setActiveTab('sessions')}>
               <MonitorPlay size={18} strokeWidth={2.5} /> Live Sessions
             </button>
+            <button className={`tab-btn ${activeTab === 'books' ? 'active' : ''}`} onClick={() => setActiveTab('books')}>
+              <BookMarked size={18} strokeWidth={2.5} /> Bible Books
+            </button>
           </div>
         </div>
 
@@ -219,7 +273,41 @@ export default function Dashboard() {
           </div>
         )}
         
-        {((activeTab === 'posts' && filteredPosts.length === 0) || (activeTab === 'sessions' && filteredSessions.length === 0)) && (
+        {activeTab === 'books' && (
+          <div className="content-grid">
+            {filteredBooks.map(book => (
+              <div key={book.id} className={`card session-card ${book.colorClass}`}>
+                <div className="session-icon" style={{ fontSize: '2.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  {book.emoji}
+                </div>
+                <div className="session-details">
+                  <span className="badge badge-group">{book.category}</span>
+                  <h3>{book.title}</h3>
+                  <p className="session-host" style={{ minHeight: '3.5rem', display: 'flex', alignItems: 'center' }}>{book.summary}</p>
+                  <a 
+                    href={book.link} 
+                    target={book.link !== '#' ? '_blank' : undefined} 
+                    rel="noopener noreferrer" 
+                    className="btn btn-secondary mt-3" 
+                    style={{ textDecoration: 'none', display: 'inline-block', textAlign: 'center' }}
+                    onClick={(e) => {
+                      if (book.link === '#') {
+                        e.preventDefault();
+                        alert(`${book.title} link will be uploaded shortly by your teacher! Stay tuned! ✨`);
+                      }
+                    }}
+                  >
+                    Open Book 📖
+                  </a>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+        
+        {((activeTab === 'posts' && filteredPosts.length === 0) || 
+          (activeTab === 'sessions' && filteredSessions.length === 0) ||
+          (activeTab === 'books' && filteredBooks.length === 0)) && (
           <div className="empty-state">
             <h3>Oops! No adventures found here yet.</h3>
             <p>Check back later or try looking in another age group!</p>
