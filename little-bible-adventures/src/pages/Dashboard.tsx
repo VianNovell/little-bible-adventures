@@ -98,30 +98,30 @@ export default function Dashboard() {
   const books: BibleBook[] = [
     {
       id: 1,
-      title: "Little Bible Adventures: Noah's Ark",
+      title: 'In the Beginning - Coloring book',
       category: 'Old Testament',
-      summary: 'Follow Noah and the animals in this beautifully illustrated adventure of faith, obedience, and God\'s rainbow promise.',
-      img: '/noah.png',
+      summary: '"In the beginning" is a perfect bedtime story and coloring book for kids aged 3-8 years based on the creation story in Genesis. Includes coloring pages, guided prayers, and Scriptures to encourage daily activities and cope with fears.',
+      img: '/in-the-beginning.png',
       colorClass: 'card-yellow',
-      link: '#' // User will replace with their actual Amazon link
+      link: 'https://www.amazon.ca/dp/B0GDXGWSZL?ref=sp_email'
     },
     {
       id: 2,
-      title: 'Little Bible Adventures: David and Goliath',
-      category: 'Old Testament',
-      summary: 'Discover how a brave young shepherd boy defeated a giant warrior using trust, courage, and a single tiny stone.',
-      img: '/david.png',
+      title: 'Who Am I: My Identity in Christ (Hard Cover)',
+      category: 'New Testament',
+      summary: 'A 21-day devotional for young readers (ages 9-12) and teenagers to grow in their identity in Christ. Features daily prayers, guided parent-child exercises, and encouraging reminders of God\'s unconditional love. Hard cover copy on Amazon.com.',
+      img: '/who-am-i-hardcover.png',
       colorClass: 'card-blue',
-      link: '#'
+      link: 'https://www.amazon.com/dp/B0GBS7WC7R?ref=sp_email'
     },
     {
       id: 3,
-      title: 'Little Bible Adventures: Esther the Brave',
-      category: 'Old Testament',
-      summary: 'Learn about Queen Esther\'s courageous stand to rescue her people, proving anyone can be used by God for great things.',
-      img: '/esther.png',
+      title: 'Who Am I: My Identity in Christ (Soft Cover)',
+      category: 'New Testament',
+      summary: 'A 21-day devotional for young readers (ages 9-12) and teenagers to know and grow in their identity in Christ. Features guided exercises, scriptures, and daily prayers to establish a foundation rooted in Christ. Soft cover copy on Amazon.ca.',
+      img: '/who-am-i-softcover.png',
       colorClass: 'card-green',
-      link: '#'
+      link: 'https://www.amazon.ca/dp/B0G6D2MV44?ref=sp_email'
     }
   ];
 
