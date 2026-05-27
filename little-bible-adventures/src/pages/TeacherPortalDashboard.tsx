@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Shield, Users, Calendar, BookOpen, Video, Plus, Edit,
@@ -32,6 +32,13 @@ export default function TeacherPortalDashboard() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<Tab>('overview');
   const teacherName = localStorage.getItem('teacherName') || 'Teacher';
+
+  useEffect(() => {
+    const auth = localStorage.getItem('teacherAuth');
+    if (auth !== 'true') {
+      navigate('/teacher-portal');
+    }
+  }, [navigate]);
 
   const handleLogout = () => {
     localStorage.removeItem('teacherAuth');

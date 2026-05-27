@@ -11,13 +11,12 @@ export default function TeacherLogin() {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    // Mock auth: any email with 'teacher' keyword + any password
-    if (email.toLowerCase().includes('teacher') || email.includes('@church')) {
+    if (email.toLowerCase().trim() === 'viankamanzi50@gmail.com' && password.trim() === '78910') {
       localStorage.setItem('teacherAuth', 'true');
-      localStorage.setItem('teacherName', email.split('@')[0]);
+      localStorage.setItem('teacherName', 'Vian');
       navigate('/teacher-portal/dashboard');
     } else {
-      setError('Invalid credentials. Use your church-issued teacher account.');
+      setError('Invalid credentials. Access restricted to the authorized teacher account only.');
     }
   };
 
