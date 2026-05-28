@@ -34,6 +34,35 @@ export default function Dashboard() {
   const [activeGroup, setActiveGroup] = useState(initialGroup);
   const [selectedStory, setSelectedStory] = useState<Story | null>(null);
   const [showCongratulations, setShowCongratulations] = useState(false);
+  const [sessions, setSessions] = useState<any[]>(() => {
+    const defaultSessions = [
+      { id: 1, title: 'Sunday School Live: Little Angels', time: 'Sunday 9:00 AM', group: '6-7', host: 'Teacher Sarah' },
+      { id: 2, title: 'Bible Trivia & Fun: Redeemed', time: 'Sunday 10:00 AM', group: '8-9', host: 'Teacher Mark' },
+      { id: 3, title: 'Deep Dive: Chosen', time: 'Sunday 11:00 AM', group: '10-12', host: 'Pastor John' },
+    ];
+    try {
+      const saved = localStorage.getItem('db_sessions');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return parsed.map((s: any) => {
+          if (s.day && s.time) {
+            const g = s.group.includes('6-7') ? '6-7' : s.group.includes('8-9') ? '8-9' : '10-12';
+            return {
+              id: s.id,
+              title: s.title,
+              time: `${s.day} ${s.time}`,
+              group: g,
+              host: s.host || 'Teacher Sarah'
+            };
+          }
+          return s;
+        });
+      }
+      return defaultSessions;
+    } catch {
+      return defaultSessions;
+    }
+  });
 
   useEffect(() => {
     const tab = queryParams.get('tab');
@@ -63,6 +92,38 @@ export default function Dashboard() {
       }
     };
     syncStats();
+
+    const fetchLiveSessions = async () => {
+      try {
+        const { data } = await supabase.from('sessions').select('*');
+        if (data && data.length > 0) {
+          const mappedSessions = data.map((s: any) => ({
+            id: s.id,
+            title: s.title,
+            time: s.time,
+            group: s.group_name || s.group || '6-7',
+            host: s.host || 'Teacher Sarah'
+          }));
+
+          const defaultSessions = [
+            { id: 1, title: 'Sunday School Live: Little Angels', time: 'Sunday 9:00 AM', group: '6-7', host: 'Teacher Sarah' },
+            { id: 2, title: 'Bible Trivia & Fun: Redeemed', time: 'Sunday 10:00 AM', group: '8-9', host: 'Teacher Mark' },
+            { id: 3, title: 'Deep Dive: Chosen', time: 'Sunday 11:00 AM', group: '10-12', host: 'Pastor John' },
+          ];
+
+          const filteredDefaults = defaultSessions.filter(
+            ds => !mappedSessions.some((ms: any) => ms.title === ds.title)
+          );
+
+          const combined = [...mappedSessions, ...filteredDefaults];
+          setSessions(combined);
+          localStorage.setItem('db_sessions', JSON.stringify(combined));
+        }
+      } catch (err) {
+        console.warn('Offline kids sessions sync failed:', err);
+      }
+    };
+    fetchLiveSessions();
   }, [location.search]);
 
   const posts: Story[] = [
@@ -89,11 +150,6 @@ export default function Dashboard() {
     },
   ];
 
-  const sessions = [
-    { id: 1, title: 'Sunday School Live: Little Angels', time: 'Sunday 9:00 AM', group: '6-7', host: 'Teacher Sarah' },
-    { id: 2, title: 'Bible Trivia & Fun: Redeemed', time: 'Sunday 10:00 AM', group: '8-9', host: 'Teacher Mark' },
-    { id: 3, title: 'Deep Dive: Chosen', time: 'Sunday 11:00 AM', group: '10-12', host: 'Pastor John' },
-  ];
 
   const books: BibleBook[] = [
     {
