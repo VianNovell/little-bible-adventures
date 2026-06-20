@@ -270,13 +270,6 @@ export default function ParentDashboard() {
 
         </div>
 
-        <div className="parent-settings card mt-4">
-          <h2 className="section-title-sm">Account Settings</h2>
-          <div className="settings-grid">
-            <button className="btn btn-outline"><Settings size={18} /> Manage Notifications</button>
-            <button className="btn btn-outline"><ShieldCheck size={18} /> Privacy Controls</button>
-          </div>
-        </div>
       </div>
 
       {/* Add/Edit Child Modal */}
