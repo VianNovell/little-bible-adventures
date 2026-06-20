@@ -128,7 +128,7 @@ export default function Signup() {
             <div className="input-group checkbox-group">
               <input type="checkbox" id="privacy" required />
               <label htmlFor="privacy">
-                I have parental consent to join video sessions and agree to the <a href="#" className="auth-link">Privacy Policy</a>.
+                I have parental consent to join video sessions and agree to the <Link to="/privacy" className="auth-link">Privacy Policy</Link>.
               </label>
             </div>
 

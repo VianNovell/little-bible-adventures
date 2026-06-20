@@ -14,6 +14,7 @@ import Profile from './pages/Profile';
 import Activities from './pages/Activities';
 import TeacherLogin from './pages/TeacherLogin';
 import TeacherPortalDashboard from './pages/TeacherPortalDashboard';
+import PrivacyPolicy from './pages/PrivacyPolicy';
 
 // Wrapper: Teacher portal routes bypass the kids' mobile shell entirely
 function AppShell() {
@@ -47,6 +48,7 @@ function AppShell() {
             <Route path="/teacher-dashboard" element={<TeacherDashboard />} />
             <Route path="/parent-dashboard" element={<ParentDashboard />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
           </Routes>
         </main>
         <BottomNav />

@@ -1,0 +1,119 @@
+.privacy-container {
+  min-height: 100vh;
+  background-color: #f7fafc;
+  padding: 2rem 1rem;
+  font-family: 'Outfit', sans-serif;
+}
+
+.privacy-header {
+  max-width: 800px;
+  margin: 0 auto 2rem auto;
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.back-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: white;
+  border: 1px solid #e2e8f0;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: 600;
+  color: #4a5568;
+  transition: all 0.2s ease;
+  position: absolute;
+  left: 0;
+}
+
+.back-btn:hover {
+  background: #edf2f7;
+  transform: translateX(-2px);
+}
+
+.privacy-title-group {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  width: 100%;
+}
+
+.privacy-icon {
+  color: #4299e1;
+}
+
+.privacy-title-group h1 {
+  margin: 0;
+  color: #2d3748;
+  font-size: 2rem;
+}
+
+.privacy-content {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2.5rem;
+  background: white;
+}
+
+.last-updated {
+  color: #718096;
+  font-style: italic;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 1rem;
+}
+
+.privacy-section {
+  margin-bottom: 2rem;
+}
+
+.privacy-section h2 {
+  color: #2d3748;
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.privacy-section p {
+  color: #4a5568;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.privacy-section ul {
+  list-style-type: disc;
+  padding-left: 1.5rem;
+  color: #4a5568;
+}
+
+.privacy-section li {
+  margin-bottom: 0.5rem;
+  line-height: 1.5;
+}
+
+.privacy-section strong {
+  color: #2d3748;
+}
+
+@media (max-width: 768px) {
+  .privacy-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .back-btn {
+    position: static;
+  }
+
+  .privacy-title-group {
+    justify-content: flex-start;
+  }
+
+  .privacy-content {
+    padding: 1.5rem;
+  }
+}
