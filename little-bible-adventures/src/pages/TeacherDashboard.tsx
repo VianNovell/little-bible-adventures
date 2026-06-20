@@ -57,6 +57,11 @@ export default function TeacherDashboard() {
   const [blogText, setBlogText] = useState('');
   const [editingPostId, setEditingPostId] = useState<number | null>(null);
 
+  const [showVerseModal, setShowVerseModal] = useState(false);
+  const [verseRef, setVerseRef] = useState('');
+  const [verseText, setVerseText] = useState('');
+  const [verseDifficulty, setVerseDifficulty] = useState('Easy');
+
   const [internalPosts, setInternalPosts] = useState<any[]>([]);
   const [activeStudentsCount, setActiveStudentsCount] = useState(0);
 
@@ -272,6 +277,32 @@ export default function TeacherDashboard() {
     setShowBlogModal(false);
   };
 
+  const handlePostVerse = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!verseRef.trim() || !verseText.trim()) return;
+
+    try {
+      const { error } = await supabase.from('memory_verses').insert([{
+        reference: verseRef.trim(),
+        text: verseText.trim(),
+        difficulty: verseDifficulty
+      }]);
+      
+      if (error) {
+        console.error("Error posting verse:", error);
+        alert("Failed to post verse: " + error.message);
+      } else {
+        setShowVerseModal(false);
+        setVerseRef('');
+        setVerseText('');
+        setVerseDifficulty('Easy');
+        alert("Memory Verse Posted!");
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const handleEditClick = (post: any) => {
     setBlogTitle(post.title || '');
     setBlogGroup(post.group || 'all');
@@ -331,6 +362,7 @@ export default function TeacherDashboard() {
         <div className="quick-actions">
           <button className="btn btn-primary" onClick={() => setShowModal(true)}><Plus size={18} /> Schedule Session</button>
           <button className="btn btn-secondary" onClick={handleNewBlogClick}><Edit size={18} /> Write Internal Blog</button>
+          <button className="btn btn-outline" onClick={() => setShowVerseModal(true)}><BookOpen size={18} /> Post Memory Verse</button>
           <button className="btn btn-outline" onClick={() => setShowSettingsModal(true)}><Settings size={18} /> Class Settings</button>
         </div>
 

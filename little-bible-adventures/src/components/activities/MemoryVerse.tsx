@@ -1,12 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X, CheckCircle } from 'lucide-react';
 import { awardStars } from '../../lib/rewards';
+import { supabase } from '../../lib/supabaseClient';
 
 interface MemoryVerseProps {
   onClose: () => void;
 }
 
-const verses = [
+const defaultVerses = [
   {
     reference: "John 3:16",
     text: "For God so loved the world that he gave his one and only Son, that whoever believes in him shall not perish but have eternal life.",
@@ -40,8 +41,28 @@ function shuffleArray<T>(array: T[]): T[] {
 
 export default function MemoryVerse({ onClose }: MemoryVerseProps) {
   const [memorized, setMemorized] = useState<string[]>([]);
-  const [selectedVerse, setSelectedVerse] = useState<typeof verses[0] | null>(null);
-  const [shuffledVerses] = useState(() => shuffleArray(verses));
+  const [selectedVerse, setSelectedVerse] = useState<any | null>(null);
+  const [liveVerses, setLiveVerses] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchVerses = async () => {
+      try {
+        const { data, error } = await supabase.from('memory_verses').select('*').order('created_at', { ascending: false });
+        if (data && data.length > 0) {
+          setLiveVerses(data);
+        } else {
+          setLiveVerses(shuffleArray(defaultVerses));
+        }
+      } catch (err) {
+        console.error(err);
+        setLiveVerses(shuffleArray(defaultVerses));
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchVerses();
+  }, []);
 
   const toggleMemorized = (reference: string) => {
     if (memorized.includes(reference)) {
@@ -80,9 +101,11 @@ export default function MemoryVerse({ onClose }: MemoryVerseProps) {
               </button>
             </div>
           </div>
+        ) : loading ? (
+          <p style={{ textAlign: 'center', padding: '2rem', color: '#666' }}>Loading verses...</p>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {shuffledVerses.map(verse => (
+            {liveVerses.map(verse => (
               <div 
                 key={verse.reference} 
                 className="card" 

@@ -55,6 +55,11 @@ export default function TeacherPortalDashboard() {
   const [blogImg, setBlogImg] = useState('');
   const [blogText, setBlogText] = useState('');
 
+  const [showVerseModal, setShowVerseModal] = useState(false);
+  const [verseRef, setVerseRef] = useState('');
+  const [verseText, setVerseText] = useState('');
+  const [verseDifficulty, setVerseDifficulty] = useState('Easy');
+
   useEffect(() => {
     const auth = localStorage.getItem('teacherAuth');
     if (auth !== 'true') {
@@ -195,8 +200,34 @@ export default function TeacherPortalDashboard() {
       
       setBlogTitle('');
       setBlogText('');
-      setBlogImg('/noah.png');
+      setBlogImg('');
       setShowBlogModal(false);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handlePostVerse = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!verseRef.trim() || !verseText.trim()) return;
+
+    try {
+      const { error } = await supabase.from('memory_verses').insert([{
+        reference: verseRef.trim(),
+        text: verseText.trim(),
+        difficulty: verseDifficulty
+      }]);
+      
+      if (error) {
+        console.error("Error posting verse:", error);
+        alert("Failed to post verse: " + error.message);
+      } else {
+        setShowVerseModal(false);
+        setVerseRef('');
+        setVerseText('');
+        setVerseDifficulty('Easy');
+        alert("Memory Verse Posted!");
+      }
     } catch (err) {
       console.error(err);
     }
@@ -313,7 +344,10 @@ export default function TeacherPortalDashboard() {
           <div>
             <div className="tp-section-header">
               <h3>Internal Class Blog</h3>
-              <button className="tp-btn-primary-sm" onClick={() => setShowBlogModal(true)}><Plus size={14} /> Write Post</button>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <button className="tp-btn-outline-sm" onClick={() => setShowVerseModal(true)}><BookOpen size={14} /> Post Verse</button>
+                <button className="tp-btn-primary-sm" onClick={() => setShowBlogModal(true)}><Plus size={14} /> Write Post</button>
+              </div>
             </div>
             <div className="card tp-card">
               {internalPosts.length === 0 && <p style={{padding:'1rem', textAlign:'center', color:'#666'}}>You haven't written any internal blog posts yet.</p>}
@@ -546,6 +580,69 @@ export default function TeacherPortalDashboard() {
                 </button>
                 <button type="submit" className="tp-btn-primary" style={{ marginTop: 0 }}>
                   Publish Post
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+      {/* Post Memory Verse Modal */}
+      {showVerseModal && (
+        <div className="tp-modal-overlay" onClick={() => setShowVerseModal(false)}>
+          <div className="tp-modal card" onClick={e => e.stopPropagation()}>
+            <button className="tp-modal-close" onClick={() => setShowVerseModal(false)}>
+              <X size={20} />
+            </button>
+            <h2>Post Memory Verse</h2>
+            <form onSubmit={handlePostVerse} className="tp-form">
+              <div className="tp-input-group">
+                <label htmlFor="verse-ref">Scripture Reference</label>
+                <input
+                  type="text"
+                  id="verse-ref"
+                  className="tp-input"
+                  placeholder="e.g. John 3:16"
+                  value={verseRef}
+                  onChange={e => setVerseRef(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="tp-input-group">
+                <label htmlFor="verse-difficulty">Difficulty Level</label>
+                <select
+                  id="verse-difficulty"
+                  className="tp-input"
+                  style={{ appearance: 'none', background: 'white' }}
+                  value={verseDifficulty}
+                  onChange={e => setVerseDifficulty(e.target.value)}
+                  required
+                >
+                  <option value="Easy">Easy (Ages 6-7)</option>
+                  <option value="Medium">Medium (Ages 8-9)</option>
+                  <option value="Hard">Hard (Ages 10-12)</option>
+                </select>
+              </div>
+
+              <div className="tp-input-group">
+                <label htmlFor="verse-text">Verse Text</label>
+                <textarea
+                  id="verse-text"
+                  className="tp-input"
+                  placeholder="For God so loved the world..."
+                  rows={4}
+                  value={verseText}
+                  onChange={e => setVerseText(e.target.value)}
+                  required
+                ></textarea>
+              </div>
+
+              <div className="tp-modal-actions">
+                <button type="button" className="tp-btn-outline-sm" onClick={() => setShowVerseModal(false)}>
+                  Cancel
+                </button>
+                <button type="submit" className="tp-btn-primary" style={{ marginTop: 0 }}>
+                  Publish Verse
                 </button>
               </div>
             </form>
