@@ -182,10 +182,7 @@ export default function Profile() {
         </div>
 
         <div className="profile-menu card mt-4">
-          <button className="menu-item">
-            <Settings size={20} className="menu-icon" />
-            <span>Account Settings</span>
-          </button>
+
           <button className="menu-item text-danger" onClick={logout}>
             <LogOut size={20} className="menu-icon text-danger" />
             <span>Log Out</span>
