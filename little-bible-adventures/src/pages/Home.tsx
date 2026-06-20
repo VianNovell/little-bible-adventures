@@ -15,14 +15,26 @@ export default function Home() {
     }
   };
 
+  const handleFeatureClick = (redirectPath: string) => {
+    if (redirectPath.startsWith('http')) {
+      window.open(redirectPath, '_blank');
+      return;
+    }
+    if (userRole) {
+      navigate(redirectPath);
+    } else {
+      navigate(`/signup?redirect=${encodeURIComponent(redirectPath)}`);
+    }
+  };
+
   const features = [
     {
       icon: <BookOpen size={28} />,
-      label: 'Amazing Stories',
-      desc: 'Fun Bible stories tailored for your age group.',
+      label: 'Blog',
+      desc: 'Read the latest updates and stories on our blog.',
       cardClass: 'card-yellow',
       iconClass: 'bg-yellow',
-      redirect: '/dashboard?tab=posts',
+      redirect: 'https://www.littlebibleadventures.org/blog',
     },
     {
       icon: <Users size={28} />,
@@ -34,8 +46,8 @@ export default function Home() {
     },
     {
       icon: <BookMarked size={28} />,
-      label: 'Bible Books',
-      desc: 'Explore books of the Bible in a fun, easy way.',
+      label: 'Children\'s Books',
+      desc: 'Explore books in a fun, easy way.',
       cardClass: 'card-green',
       iconClass: 'bg-green',
       redirect: '/dashboard?tab=books',
@@ -56,10 +68,10 @@ export default function Home() {
         <div className="container hero-container">
           <div className="hero-content">
             <h1 className="hero-title">
-              Discover <span className="highlight-text animate-pulse">God's Word</span> in a Fun Way!
+              LITTLE <span className="highlight-text animate-pulse">BIBLE</span> ADVENTURES.
             </h1>
             <p className="hero-subtitle">
-              Join the coolest online Sunday School! Exciting Bible stories, fun activities, and interactive sessions for kids ages 6 to 12.
+              A Christian Faith-Based Platform for Kids. Exciting Bible stories, fun activities, and interactive sessions for kids ages 6 to 12
             </p>
             <div className="hero-actions">
               <Link to="/signup" className="btn btn-primary hero-btn">
@@ -75,7 +87,7 @@ export default function Home() {
             <div className="shape shape-2"></div>
             <div className="shape shape-3"></div>
             <img
-              src="/hero-image.png"
+              src="/bible-train.jpg"
               alt="Little Bible Adventures Train Logo"
               className="hero-img animate-float"
             />
@@ -90,7 +102,7 @@ export default function Home() {
             <div
               key={f.label}
               className={`feature-card-new ${f.cardClass}`}
-              onClick={() => navigate(`/signup?redirect=${encodeURIComponent(f.redirect)}`)}
+              onClick={() => handleFeatureClick(f.redirect)}
             >
               <div className={`feature-icon-new ${f.iconClass}`}>
                 {f.icon}

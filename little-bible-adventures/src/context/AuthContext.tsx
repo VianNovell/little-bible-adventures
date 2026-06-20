@@ -36,17 +36,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           else navigate('/activities');
         }
       } else {
-        // Gracefully recover local storage fallback session if present
-        const storedRole = localStorage.getItem('userRole') as UserRole;
-        if (storedRole) {
-          setUserRole(storedRole);
-        } else {
-          // Redirect to login if trying to access protected dashboards
-          const protectedPaths = ['/dashboard', '/activities', '/teacher-dashboard', '/parent-dashboard', '/room', '/profile'];
-          const isProtected = protectedPaths.some(p => location.pathname.startsWith(p));
-          if (isProtected) {
-            navigate(`/login?redirect=${encodeURIComponent(location.pathname + location.search)}`);
-          }
+        // No real Supabase session found, user must log in.
+        localStorage.removeItem('userRole'); // Clear any old mock sessions
+        setUserRole(null);
+
+        // Redirect to login if trying to access protected dashboards
+        const protectedPaths = ['/dashboard', '/activities', '/teacher-dashboard', '/parent-dashboard', '/room', '/profile'];
+        const isProtected = protectedPaths.some(p => location.pathname.startsWith(p));
+        if (isProtected) {
+          navigate(`/login?redirect=${encodeURIComponent(location.pathname + location.search)}`);
         }
       }
     };
@@ -54,28 +52,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     restoreSession();
   }, [userRole, location.pathname, navigate]);
 
-  const login = async (role: UserRole, email?: string, password?: string) => {
-    if (email && password) {
-      // Connect to secure database auth
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) throw error;
-      
-      const resolvedRole = (email.includes('viankamanzi50@gmail.com') || email.includes('teacher')) ? 'teacher' : email.includes('parent') ? 'parent' : 'student';
-      localStorage.setItem('userRole', resolvedRole);
-      setUserRole(resolvedRole);
-
-      if (resolvedRole === 'teacher') navigate('/teacher-dashboard');
-      else if (resolvedRole === 'parent') navigate('/parent-dashboard');
-      else navigate('/dashboard');
-    } else {
-      // Graceful local login fallback
-      localStorage.setItem('userRole', role!);
-      setUserRole(role);
-      
-      if (role === 'teacher') navigate('/teacher-dashboard');
-      else if (role === 'parent') navigate('/parent-dashboard');
-      else navigate('/dashboard');
+  const login = async (_role: UserRole, email?: string, password?: string) => {
+    if (!email || !password) {
+      throw new Error("Email and password are required for Supabase authentication.");
     }
+    
+    // Connect to secure database auth
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) throw error;
+    
+    const resolvedRole = (email.includes('viankamanzi50@gmail.com') || email.includes('teacher')) ? 'teacher' : email.includes('parent') ? 'parent' : 'student';
+    localStorage.setItem('userRole', resolvedRole);
+    setUserRole(resolvedRole);
+
+    // Navigation is handled by the caller (Login.tsx or Signup.tsx)
   };
 
   const logout = async () => {

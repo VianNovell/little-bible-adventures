@@ -7,11 +7,7 @@ import {
 import { supabase } from '../lib/supabaseClient';
 import './TeacherPortal.css';
 
-const STORIES = [
-  { id: 1, title: 'Noah and the Big Boat', group: 'Little Angels', date: '2 days ago', published: true },
-  { id: 2, title: 'David and the Giant', group: 'Redeemed', date: '1 week ago', published: true },
-  { id: 3, title: 'Esther Saves Her People', group: 'Chosen', date: '2 weeks ago', published: false },
-];
+
 
 const STUDENTS = [
   { name: 'Emma K.', group: 'Little Angels', joined: 'May 10' },
@@ -21,7 +17,7 @@ const STUDENTS = [
   { name: 'Ava T.', group: 'Redeemed', joined: 'May 17' },
 ];
 
-type Tab = 'overview' | 'sessions' | 'stories' | 'students';
+type Tab = 'overview' | 'sessions' | 'stories' | 'students' | 'prayers';
 
 export default function TeacherPortalDashboard() {
   const navigate = useNavigate();
@@ -30,39 +26,34 @@ export default function TeacherPortalDashboard() {
 
   const [sessions, setSessions] = useState<any[]>(() => {
     const defaultSessions = [
-      { id: 1, day: 'Sun', time: '9:00 AM', title: 'Sunday School Live: Little Angels', group: 'Little Angels (6-7)' },
-      { id: 2, day: 'Sun', time: '10:00 AM', title: 'Bible Trivia & Fun: Redeemed', group: 'Redeemed (8-9)' },
-      { id: 3, day: 'Wed', time: '4:00 PM', title: 'Deep Dive: Chosen', group: 'Chosen (10-12)' },
+      { id: 1, day: 'Mon', time: '4:30 PM', title: 'Monday Live: Little Angels (4:30 PM)', group: 'Little Angels' },
+      { id: 2, day: 'Mon', time: '5:30 PM', title: 'Monday Live: Little Angels (5:30 PM)', group: 'Little Angels' },
+      { id: 3, day: 'Tue', time: '4:30 PM', title: 'Tuesday Live: Redeemed (4:30 PM)', group: 'Redeemed' },
+      { id: 4, day: 'Tue', time: '5:30 PM', title: 'Tuesday Live: Redeemed (5:30 PM)', group: 'Redeemed' },
+      { id: 5, day: 'Wed', time: '4:30 PM', title: 'Wednesday Live: Chosen (4:30 PM)', group: 'Chosen' },
+      { id: 6, day: 'Wed', time: '5:30 PM', title: 'Wednesday Live: Chosen (5:30 PM)', group: 'Chosen' },
+      { id: 7, day: 'Thu', time: '4:30 PM', title: 'Thursday Prayer: Little Angels & Redeemed (4:30 PM)', group: 'Little Angels & Redeemed' },
+      { id: 8, day: 'Thu', time: '5:30 PM', title: 'Thursday Prayer: Little Angels & Redeemed (5:30 PM)', group: 'Little Angels & Redeemed' },
+      { id: 9, day: 'Fri', time: '4:30 PM', title: 'Friday Prayer: Chosen (4:30 PM)', group: 'Chosen' },
+      { id: 10, day: 'Fri', time: '5:30 PM', title: 'Friday Prayer: Chosen (5:30 PM)', group: 'Chosen' },
     ];
-    try {
-      const saved = localStorage.getItem('db_sessions');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        return parsed.map((s: any) => {
-          if (s.day && s.time) return s;
-          const parts = (s.time_label || s.time || '').split(' ');
-          const day = parts[0] || 'Sun';
-          const time = parts.slice(1).join(' ') || '12:00 PM';
-          return {
-            id: s.id,
-            day,
-            time,
-            title: s.title,
-            group: s.group_name || s.group || 'All Groups'
-          };
-        });
-      }
-      return defaultSessions;
-    } catch {
-      return defaultSessions;
-    }
+    return defaultSessions;
   });
+
+  const [internalPosts, setInternalPosts] = useState<any[]>([]);
+  const [prayers, setPrayers] = useState<any[]>([]);
 
   const [showModal, setShowModal] = useState(false);
   const [newTitle, setNewTitle] = useState('');
   const [newTime, setNewTime] = useState('Sunday 11:00 AM');
   const [newGroup, setNewGroup] = useState('6-7');
-  const [newHost, setNewHost] = useState('Teacher Sarah');
+  const [newHost, setNewHost] = useState("Mrs. Sa'rah");
+
+  const [showBlogModal, setShowBlogModal] = useState(false);
+  const [blogTitle, setBlogTitle] = useState('');
+  const [blogGroup, setBlogGroup] = useState('all');
+  const [blogImg, setBlogImg] = useState('');
+  const [blogText, setBlogText] = useState('');
 
   useEffect(() => {
     const auth = localStorage.getItem('teacherAuth');
@@ -72,25 +63,33 @@ export default function TeacherPortalDashboard() {
 
     const fetchLiveSessions = async () => {
       try {
+        if (!localStorage.getItem('cleared_old_sessions_v1_teacher_portal')) {
+          localStorage.removeItem('mock_db_sessions');
+          localStorage.setItem('cleared_old_sessions_v1_teacher_portal', 'true');
+        }
         const { data } = await supabase.from('sessions').select('*');
         if (data && data.length > 0) {
           const mappedSessions = data.map((s: any) => {
-            const parts = (s.time_label || s.time || '').split(' ');
-            const day = parts[0] || 'Sun';
-            const time = parts.slice(1).join(' ') || '12:00 PM';
             return {
               id: s.id,
-              day,
-              time,
+              day: s.day || 'Mon',
+              time: s.time || '12:00 PM',
               title: s.title,
               group: s.group_name || s.group || 'All Groups'
             };
           });
 
           const defaultSessions = [
-            { id: 1, day: 'Sun', time: '9:00 AM', title: 'Sunday School Live: Little Angels', group: 'Little Angels (6-7)' },
-            { id: 2, day: 'Sun', time: '10:00 AM', title: 'Bible Trivia & Fun: Redeemed', group: 'Redeemed (8-9)' },
-            { id: 3, day: 'Wed', time: '4:00 PM', title: 'Deep Dive: Chosen', group: 'Chosen (10-12)' },
+            { id: 1, day: 'Mon', time: '4:30 PM', title: 'Monday Live: Little Angels (4:30 PM)', group: 'Little Angels' },
+            { id: 2, day: 'Mon', time: '5:30 PM', title: 'Monday Live: Little Angels (5:30 PM)', group: 'Little Angels' },
+            { id: 3, day: 'Tue', time: '4:30 PM', title: 'Tuesday Live: Redeemed (4:30 PM)', group: 'Redeemed' },
+            { id: 4, day: 'Tue', time: '5:30 PM', title: 'Tuesday Live: Redeemed (5:30 PM)', group: 'Redeemed' },
+            { id: 5, day: 'Wed', time: '4:30 PM', title: 'Wednesday Live: Chosen (4:30 PM)', group: 'Chosen' },
+            { id: 6, day: 'Wed', time: '5:30 PM', title: 'Wednesday Live: Chosen (5:30 PM)', group: 'Chosen' },
+            { id: 7, day: 'Thu', time: '4:30 PM', title: 'Thursday Prayer: Little Angels & Redeemed (4:30 PM)', group: 'Little Angels & Redeemed' },
+            { id: 8, day: 'Thu', time: '5:30 PM', title: 'Thursday Prayer: Little Angels & Redeemed (5:30 PM)', group: 'Little Angels & Redeemed' },
+            { id: 9, day: 'Fri', time: '4:30 PM', title: 'Friday Prayer: Chosen (4:30 PM)', group: 'Chosen' },
+            { id: 10, day: 'Fri', time: '5:30 PM', title: 'Friday Prayer: Chosen (5:30 PM)', group: 'Chosen' },
           ];
 
           const filteredDefaults = defaultSessions.filter(
@@ -99,10 +98,22 @@ export default function TeacherPortalDashboard() {
 
           const combined = [...mappedSessions, ...filteredDefaults];
           setSessions(combined);
-          localStorage.setItem('db_sessions', JSON.stringify(combined));
         }
+
+        const { data: postsData } = await supabase
+          .from('internal_blog_posts')
+          .select('*')
+          .order('created_at', { ascending: false });
+        if (postsData) setInternalPosts(postsData);
+
+        const { data: prayersData } = await supabase
+          .from('prayers')
+          .select('*')
+          .order('created_at', { ascending: false });
+        if (prayersData) setPrayers(prayersData);
+
       } catch (err) {
-        console.warn('Offline teacher sessions fetch failed:', err);
+        console.warn('Data fetch failed:', err);
       }
     };
     fetchLiveSessions();
@@ -120,19 +131,16 @@ export default function TeacherPortalDashboard() {
 
     const parts = newTime.split(' ');
     const day = parts[0] || 'Sun';
-    const time = parts.slice(1).join(' ') || '12:00 PM';
-
     const sessionObj = {
       id: Date.now(),
-      day,
-      time,
       title: newTitle.trim(),
-      group: newGroup === '6-7' ? 'Little Angels (6-7)' : newGroup === '8-9' ? 'Redeemed (8-9)' : 'Chosen (10-12)'
+      day: day,
+      time: newTime,
+      group: newGroup === '6-7' ? 'Little Angels (6-7)' : newGroup === '8-9' ? 'Redeemed (8-9)' : 'Chosen (10-12)',
+      host: teacherName
     };
-
     const updatedSessions = [sessionObj, ...sessions];
     setSessions(updatedSessions);
-    localStorage.setItem('db_sessions', JSON.stringify(updatedSessions));
 
     // Save to Supabase (Cloud Insert)
     try {
@@ -150,6 +158,48 @@ export default function TeacherPortalDashboard() {
     setNewTime('Sunday 11:00 AM');
     setNewGroup('6-7');
     setShowModal(false);
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setBlogImg(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleCreateBlogPost = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!blogTitle.trim() || !blogText.trim()) return;
+
+    const newPost = {
+      title: blogTitle.trim(),
+      image_url: blogImg,
+      content: blogText.trim(),
+      group: blogGroup
+    };
+
+    try {
+      const { data, error } = await supabase.from('internal_blog_posts').insert([newPost]).select();
+      if (error) {
+        console.error("Supabase insert error:", error);
+        alert("Failed to publish post: " + error.message);
+        return;
+      }
+      if (data && data.length > 0) {
+        setInternalPosts(prev => [data[0], ...prev]);
+      }
+      
+      setBlogTitle('');
+      setBlogText('');
+      setBlogImg('/noah.png');
+      setShowBlogModal(false);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
@@ -186,7 +236,7 @@ export default function TeacherPortalDashboard() {
               </div>
               <div className="tp-stat-card">
                 <div className="tp-stat-icon tp-icon-green"><BookOpen size={18} /></div>
-                <div><h3>12</h3><p>Stories</p></div>
+                <div><h3>{internalPosts.length}</h3><p>Internal Posts</p></div>
               </div>
             </div>
 
@@ -202,7 +252,7 @@ export default function TeacherPortalDashboard() {
                     <strong>{s.title}</strong>
                     <span>{s.group}</span>
                   </div>
-                  <button className="tp-btn-start" onClick={() => navigate(`/room/${s.id}`)}>
+                  <button className="tp-btn-start" onClick={() => navigate(`/room/${s.id}?role=teacher`)}>
                     <Video size={13} /> Start
                   </button>
                 </div>
@@ -211,17 +261,18 @@ export default function TeacherPortalDashboard() {
 
             <div className="card tp-card">
               <div className="tp-card-header">
-                <h3>Recent Stories</h3>
+                <h3>Recent Internal Posts</h3>
                 <button className="tp-text-btn" onClick={() => setActiveTab('stories')}>View all <ChevronRight size={14} /></button>
               </div>
-              {STORIES.slice(0, 3).map(s => (
+              {internalPosts.length === 0 && <p style={{fontSize:'0.9rem', color:'#666', padding:'0.5rem 1rem'}}>No posts yet. Write one!</p>}
+              {internalPosts.slice(0, 3).map(s => (
                 <div key={s.id} className="tp-story-row">
                   <BookOpen size={16} className="tp-story-icon" />
                   <div className="tp-story-detail">
                     <strong>{s.title}</strong>
-                    <span>{s.group} · {s.date}</span>
+                    <span>{s.audience || s.group} · {new Date(s.created_at).toLocaleDateString()}</span>
                   </div>
-                  {s.published
+                  {s.published !== false
                     ? <CheckCircle size={15} className="tp-published" />
                     : <Clock size={15} className="tp-draft" />}
                 </div>
@@ -247,7 +298,7 @@ export default function TeacherPortalDashboard() {
                   </div>
                   <div className="tp-session-actions">
                     <button className="tp-btn-outline-sm"><Edit size={12} /></button>
-                    <button className="tp-btn-start" onClick={() => navigate(`/room/${s.id}`)}>
+                    <button className="tp-btn-start" onClick={() => navigate(`/room/${s.id}?role=teacher`)}>
                       <Video size={13} /> Start
                     </button>
                   </div>
@@ -261,19 +312,20 @@ export default function TeacherPortalDashboard() {
         {activeTab === 'stories' && (
           <div>
             <div className="tp-section-header">
-              <h3>Bible Stories</h3>
-              <button className="tp-btn-primary-sm"><Plus size={14} /> New</button>
+              <h3>Internal Class Blog</h3>
+              <button className="tp-btn-primary-sm" onClick={() => setShowBlogModal(true)}><Plus size={14} /> Write Post</button>
             </div>
             <div className="card tp-card">
-              {STORIES.map(s => (
+              {internalPosts.length === 0 && <p style={{padding:'1rem', textAlign:'center', color:'#666'}}>You haven't written any internal blog posts yet.</p>}
+              {internalPosts.map(s => (
                 <div key={s.id} className="tp-story-row">
                   <BookOpen size={18} className="tp-story-icon" />
                   <div className="tp-story-detail">
                     <strong>{s.title}</strong>
                     <span>{s.group} · {s.date}</span>
                   </div>
-                  <span className={`tp-status-badge ${s.published ? 'tp-published-badge' : 'tp-draft-badge'}`}>
-                    {s.published ? 'Live' : 'Draft'}
+                  <span className={`tp-status-badge ${s.published !== false ? 'tp-published-badge' : 'tp-draft-badge'}`}>
+                    {s.published !== false ? 'Live' : 'Draft'}
                   </span>
                   <button className="tp-btn-outline-sm"><Edit size={12} /></button>
                 </div>
@@ -301,15 +353,37 @@ export default function TeacherPortalDashboard() {
             ))}
           </div>
         )}
+        {/* Prayers Tab */}
+        {activeTab === 'prayers' && (
+          <div>
+            <div className="tp-section-header">
+              <h3>Prayer Requests</h3>
+              <span className="tp-count-badge">{prayers.length} prayers</span>
+            </div>
+            {prayers.length === 0 && <p style={{fontSize:'0.9rem', color:'#666', padding:'0.5rem 1rem'}}>No prayer requests yet.</p>}
+            {prayers.map((prayer) => (
+              <div key={prayer.id} className="card tp-student-row" style={{ alignItems: 'flex-start' }}>
+                <div className="tp-student-avatar" style={{ backgroundColor: '#ed8936' }}>{prayer.author[0]?.toUpperCase() || '?'}</div>
+                <div className="tp-student-info" style={{ width: '100%' }}>
+                  <strong>{prayer.author}</strong>
+                  <span style={{ marginBottom: '0.5rem', display: 'block' }}>{new Date(prayer.created_at).toLocaleDateString()}</span>
+                  <p style={{ color: '#333', lineHeight: '1.4', background: '#f7fafc', padding: '0.8rem', borderRadius: '8px' }}>
+                    "{prayer.text}"
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Mobile Bottom Tab Bar */}
       <nav className="tp-bottom-nav">
         {([
-          { key: 'overview', icon: <BarChart2 size={22} />, label: 'Overview' },
-          { key: 'sessions', icon: <Video size={22} />, label: 'Sessions' },
-          { key: 'stories', icon: <BookOpen size={22} />, label: 'Stories' },
-          { key: 'students', icon: <Users size={22} />, label: 'Students' },
+          { key: 'overview', icon: <BarChart2 size={22} />, label: 'Home' },
+          { key: 'sessions', icon: <Video size={22} />, label: 'Live' },
+          { key: 'stories', icon: <BookOpen size={22} />, label: 'Blog' },
+          { key: 'prayers', icon: <Users size={22} />, label: 'Prayers' },
         ] as { key: Tab; icon: React.ReactNode; label: string }[]).map(item => (
           <button
             key={item.key}
@@ -379,7 +453,7 @@ export default function TeacherPortalDashboard() {
                   type="text"
                   id="sess-host"
                   className="tp-input"
-                  placeholder="e.g. Teacher Sarah"
+                  placeholder="e.g. Mrs. Sa'rah"
                   value={newHost}
                   onChange={e => setNewHost(e.target.value)}
                   required
@@ -392,6 +466,86 @@ export default function TeacherPortalDashboard() {
                 </button>
                 <button type="submit" className="tp-btn-primary" style={{ marginTop: 0 }}>
                   Schedule
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Write Blog Post Modal */}
+      {showBlogModal && (
+        <div className="tp-modal-overlay" onClick={() => setShowBlogModal(false)}>
+          <div className="tp-modal card" onClick={e => e.stopPropagation()}>
+            <button className="tp-modal-close" onClick={() => setShowBlogModal(false)}>
+              <X size={20} />
+            </button>
+            <h2>Write Internal Blog Post</h2>
+            <form onSubmit={handleCreateBlogPost} className="tp-form">
+              <div className="tp-input-group">
+                <label htmlFor="blog-title">Title</label>
+                <input
+                  type="text"
+                  id="blog-title"
+                  className="tp-input"
+                  placeholder="e.g. Noah's Ark Craft Results"
+                  value={blogTitle}
+                  onChange={e => setBlogTitle(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="tp-input-group">
+                <label htmlFor="blog-group">Audience (Age Group)</label>
+                <select
+                  id="blog-group"
+                  className="tp-input"
+                  style={{ appearance: 'none', background: 'white' }}
+                  value={blogGroup}
+                  onChange={e => setBlogGroup(e.target.value)}
+                  required
+                >
+                  <option value="all">All Groups</option>
+                  <option value="6-7">Little Angels (Ages 6-7)</option>
+                  <option value="8-9">Redeemed (Ages 8-9)</option>
+                  <option value="10-12">Chosen (Ages 10-12)</option>
+                </select>
+              </div>
+
+              <div className="tp-input-group">
+                <label htmlFor="blog-img">Upload Image (Optional)</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  id="blog-img"
+                  className="tp-input"
+                  onChange={handleImageUpload}
+                  style={{ padding: '0.5rem' }}
+                />
+                {blogImg && blogImg !== '/noah.png' && (
+                  <img src={blogImg} alt="Preview" style={{ width: '100%', height: '120px', objectFit: 'cover', marginTop: '0.5rem', borderRadius: '8px' }} />
+                )}
+              </div>
+
+              <div className="tp-input-group">
+                <label htmlFor="blog-text">Post Content</label>
+                <textarea
+                  id="blog-text"
+                  className="tp-input"
+                  placeholder="Write your story or update here..."
+                  rows={4}
+                  value={blogText}
+                  onChange={e => setBlogText(e.target.value)}
+                  required
+                ></textarea>
+              </div>
+
+              <div className="tp-modal-actions">
+                <button type="button" className="tp-btn-outline-sm" onClick={() => setShowBlogModal(false)}>
+                  Cancel
+                </button>
+                <button type="submit" className="tp-btn-primary" style={{ marginTop: 0 }}>
+                  Publish Post
                 </button>
               </div>
             </form>

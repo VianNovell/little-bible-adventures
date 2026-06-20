@@ -1,7 +1,12 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Music, Palette, HelpCircle, Star, BookOpen, Mic2, Gamepad2, Heart } from 'lucide-react';
+import { HelpCircle, Star, BookOpen, Mic2, Gamepad2, Heart } from 'lucide-react';
 import './Activities.css';
+
+import BibleQuiz from '../components/activities/BibleQuiz';
+import MemoryVerse from '../components/activities/MemoryVerse';
+import PrayerCorner from '../components/activities/PrayerCorner';
+import BibleGames from '../components/activities/BibleGames';
 
 const activities = [
   {
@@ -13,24 +18,7 @@ const activities = [
     color: 'act-yellow',
     emoji: '🎯',
   },
-  {
-    id: 2,
-    icon: <Music size={28} />,
-    title: 'Sing-Along Songs',
-    desc: 'Worship songs just for you.',
-    tag: 'Music',
-    color: 'act-blue',
-    emoji: '🎵',
-  },
-  {
-    id: 3,
-    icon: <Palette size={28} />,
-    title: 'Coloring Pages',
-    desc: 'Color Bible stories your way.',
-    tag: 'Art',
-    color: 'act-purple',
-    emoji: '🎨',
-  },
+
   {
     id: 4,
     icon: <BookOpen size={28} />,
@@ -98,16 +86,16 @@ export default function Activities() {
         {/* Activities grid */}
         <h2 className="act-section-title">Pick an Activity</h2>
         <div className="act-grid">
-          {activities.map((a) => (
+          {activities.map((act) => (
             <div
-              key={a.id}
-              className={`act-card card ${a.color}`}
-              onClick={() => setSelectedActivity(a.title)}
+              key={act.id}
+              className={`act-card card ${act.color}`}
+              onClick={() => setSelectedActivity(act.title)}
             >
-              <div className="act-emoji">{a.emoji}</div>
-              <h3>{a.title}</h3>
-              <p>{a.desc}</p>
-              <span className="act-pill">{a.tag}</span>
+              <div className="act-emoji">{act.emoji}</div>
+              <h3>{act.title}</h3>
+              <p>{act.desc}</p>
+              <span className="act-pill">{act.tag}</span>
             </div>
           ))}
         </div>
@@ -127,19 +115,11 @@ export default function Activities() {
         </div>
       </div>
 
-      {/* Coming Soon Modal */}
-      {selectedActivity && (
-        <div className="act-modal-overlay" onClick={() => setSelectedActivity(null)}>
-          <div className="act-modal card animate-float" onClick={e => e.stopPropagation()}>
-            <div className="act-modal-icon">🚧</div>
-            <h2>{selectedActivity} is Coming Soon!</h2>
-            <p>Our team is working hard to bring you this fun activity. Check back soon!</p>
-            <button className="btn btn-primary mt-3" onClick={() => setSelectedActivity(null)}>
-              Got it!
-            </button>
-          </div>
-        </div>
-      )}
+      {/* Modals */}
+      {selectedActivity === 'Bible Quiz' && <BibleQuiz onClose={() => setSelectedActivity(null)} />}
+      {selectedActivity === 'Memory Verse' && <MemoryVerse onClose={() => setSelectedActivity(null)} />}
+      {selectedActivity === 'Prayer Corner' && <PrayerCorner onClose={() => setSelectedActivity(null)} />}
+      {selectedActivity === 'Bible Games' && <BibleGames onClose={() => setSelectedActivity(null)} />}
     </div>
   );
 }

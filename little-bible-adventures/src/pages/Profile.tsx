@@ -13,6 +13,17 @@ export default function Profile() {
 
   const [storiesRead, setStoriesRead] = useState(() => parseInt(localStorage.getItem('storiesRead') || '3'));
   const [badgesEarned, setBadgesEarned] = useState(() => parseInt(localStorage.getItem('badgesEarned') || '1'));
+  const [starsEarned, setStarsEarned] = useState(() => parseInt(localStorage.getItem('starsEarned') || '0'));
+
+  useEffect(() => {
+    const handleRewardsUpdated = (e: CustomEvent) => {
+      if (e.detail.badges !== undefined) setBadgesEarned(e.detail.badges);
+      if (e.detail.stars !== undefined) setStarsEarned(e.detail.stars);
+    };
+    
+    window.addEventListener('rewardsUpdated', handleRewardsUpdated as EventListener);
+    return () => window.removeEventListener('rewardsUpdated', handleRewardsUpdated as EventListener);
+  }, []);
 
   useEffect(() => {
     // Fetch live relational statistics from database achievements table
@@ -21,16 +32,44 @@ export default function Profile() {
         const { data: sessionData } = await supabase.auth.getSession();
         const userId = sessionData?.session?.user?.id;
         if (userId) {
-          const { data } = await supabase.from('achievements').select('*').eq('user_id', userId);
+          const { data, error } = await supabase.from('achievements').select('*').eq('user_id', userId);
+          if (error) throw error;
+          
           if (data && data.length > 0) {
-            setStoriesRead(data[0].stories_read);
-            setBadgesEarned(data[0].badges_earned);
-            localStorage.setItem('storiesRead', data[0].stories_read.toString());
-            localStorage.setItem('badgesEarned', data[0].badges_earned.toString());
+            setStoriesRead(data[0].stories_read || 0);
+            setBadgesEarned(data[0].badges_earned || 0);
+            setStarsEarned(data[0].stars_earned || 0);
+            localStorage.setItem('storiesRead', (data[0].stories_read || 0).toString());
+            localStorage.setItem('badgesEarned', (data[0].badges_earned || 0).toString());
+            localStorage.setItem('starsEarned', (data[0].stars_earned || 0).toString());
+          } else {
+            // New user, initialize their cloud stats with their current offline progress
+            const currentStories = parseInt(localStorage.getItem('storiesRead') || '0');
+            const currentBadges = parseInt(localStorage.getItem('badgesEarned') || '0');
+            const currentStars = parseInt(localStorage.getItem('starsEarned') || '0');
+            
+            await supabase.from('achievements').insert({
+              user_id: userId,
+              stories_read: currentStories,
+              badges_earned: currentBadges,
+              stars_earned: currentStars
+            });
+            
+            setStoriesRead(currentStories);
+            setBadgesEarned(currentBadges);
+            setStarsEarned(currentStars);
           }
+        } else {
+          // No user, just use what's in local storage
+          setStoriesRead(parseInt(localStorage.getItem('storiesRead') || '0'));
+          setBadgesEarned(parseInt(localStorage.getItem('badgesEarned') || '0'));
+          setStarsEarned(parseInt(localStorage.getItem('starsEarned') || '0'));
         }
       } catch (err) {
         console.warn('Achievements stats fetch fallback:', err);
+        setStoriesRead(parseInt(localStorage.getItem('storiesRead') || '0'));
+        setBadgesEarned(parseInt(localStorage.getItem('badgesEarned') || '0'));
+        setStarsEarned(parseInt(localStorage.getItem('starsEarned') || '0'));
       }
     };
     fetchStats();
@@ -107,9 +146,42 @@ export default function Profile() {
               <p>Badges Earned</p>
             </div>
           </div>
+          <div className="stat-card card">
+            <div className="stat-icon bg-yellow"><Star color="white" /></div>
+            <div className="stat-info">
+              <h3>{starsEarned}</h3>
+              <p>Stars</p>
+            </div>
+          </div>
         </div>
 
-        <div className="profile-menu card">
+        <div className="profile-badges card mt-4">
+          <h2 className="section-title-sm">My Badges</h2>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 1fr))', gap: '1rem', marginTop: '1rem' }}>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ width: '60px', height: '60px', background: '#ed8936', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto', fontSize: '2rem' }}>📖</div>
+              <p style={{ fontSize: '0.8rem', fontWeight: 'bold', marginTop: '0.5rem' }}>First Story</p>
+            </div>
+            {badgesEarned > 1 && (
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ width: '60px', height: '60px', background: '#48bb78', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto', fontSize: '2rem' }}>🧠</div>
+                <p style={{ fontSize: '0.8rem', fontWeight: 'bold', marginTop: '0.5rem' }}>Memory Champ</p>
+              </div>
+            )}
+            {badgesEarned > 2 && (
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ width: '60px', height: '60px', background: '#e53e3e', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto', fontSize: '2rem' }}>🏆</div>
+                <p style={{ fontSize: '0.8rem', fontWeight: 'bold', marginTop: '0.5rem' }}>Quiz Master</p>
+              </div>
+            )}
+            <div style={{ textAlign: 'center', opacity: 0.3 }}>
+              <div style={{ width: '60px', height: '60px', background: '#cbd5e0', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto', fontSize: '2rem' }}>🔒</div>
+              <p style={{ fontSize: '0.8rem', fontWeight: 'bold', marginTop: '0.5rem' }}>Locked</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="profile-menu card mt-4">
           <button className="menu-item">
             <Settings size={20} className="menu-icon" />
             <span>Account Settings</span>

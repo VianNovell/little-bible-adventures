@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Calendar, PlayCircle, BookHeart, MonitorPlay, BookMarked, X } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
+import { useAuth } from '../context/AuthContext';
 import './Dashboard.css';
 
 interface Story {
@@ -34,34 +35,30 @@ export default function Dashboard() {
   const [activeGroup, setActiveGroup] = useState(initialGroup);
   const [selectedStory, setSelectedStory] = useState<Story | null>(null);
   const [showCongratulations, setShowCongratulations] = useState(false);
+  const { userRole } = useAuth();
+
+  useEffect(() => {
+    if (!userRole) {
+      navigate('/login');
+    }
+  }, [userRole, navigate]);
+  
+  const [internalPosts, setInternalPosts] = useState<any[]>([]);
+
   const [sessions, setSessions] = useState<any[]>(() => {
     const defaultSessions = [
-      { id: 1, title: 'Sunday School Live: Little Angels', time: 'Sunday 9:00 AM', group: '6-7', host: 'Teacher Sarah' },
-      { id: 2, title: 'Bible Trivia & Fun: Redeemed', time: 'Sunday 10:00 AM', group: '8-9', host: 'Teacher Mark' },
-      { id: 3, title: 'Deep Dive: Chosen', time: 'Sunday 11:00 AM', group: '10-12', host: 'Pastor John' },
+      { id: 1, title: 'Monday Live: Little Angels (4:30 PM)', time: 'Monday 4:30 PM EST', group: 'Little Angels', host: "Mrs. Sa'rah" },
+      { id: 2, title: 'Monday Live: Little Angels (5:30 PM)', time: 'Monday 5:30 PM EST', group: 'Little Angels', host: "Mrs. Sa'rah" },
+      { id: 3, title: 'Tuesday Live: Redeemed (4:30 PM)', time: 'Tuesday 4:30 PM EST', group: 'Redeemed', host: "Mrs. Sa'rah" },
+      { id: 4, title: 'Tuesday Live: Redeemed (5:30 PM)', time: 'Tuesday 5:30 PM EST', group: 'Redeemed', host: "Mrs. Sa'rah" },
+      { id: 5, title: 'Wednesday Live: Chosen (4:30 PM)', time: 'Wednesday 4:30 PM EST', group: 'Chosen', host: "Mrs. Sa'rah" },
+      { id: 6, title: 'Wednesday Live: Chosen (5:30 PM)', time: 'Wednesday 5:30 PM EST', group: 'Chosen', host: "Mrs. Sa'rah" },
+      { id: 7, title: 'Thursday Prayer: Little Angels & Redeemed (4:30 PM)', time: 'Thursday 4:30 PM EST', group: 'Little Angels & Redeemed', host: "Mrs. Sa'rah" },
+      { id: 8, title: 'Thursday Prayer: Little Angels & Redeemed (5:30 PM)', time: 'Thursday 5:30 PM EST', group: 'Little Angels & Redeemed', host: "Mrs. Sa'rah" },
+      { id: 9, title: 'Friday Prayer: Chosen (4:30 PM)', time: 'Friday 4:30 PM EST', group: 'Chosen', host: "Mrs. Sa'rah" },
+      { id: 10, title: 'Friday Prayer: Chosen (5:30 PM)', time: 'Friday 5:30 PM EST', group: 'Chosen', host: "Mrs. Sa'rah" },
     ];
-    try {
-      const saved = localStorage.getItem('db_sessions');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        return parsed.map((s: any) => {
-          if (s.day && s.time) {
-            const g = s.group.includes('6-7') ? '6-7' : s.group.includes('8-9') ? '8-9' : '10-12';
-            return {
-              id: s.id,
-              title: s.title,
-              time: `${s.day} ${s.time}`,
-              group: g,
-              host: s.host || 'Teacher Sarah'
-            };
-          }
-          return s;
-        });
-      }
-      return defaultSessions;
-    } catch {
-      return defaultSessions;
-    }
+    return defaultSessions;
   });
 
   useEffect(() => {
@@ -93,22 +90,65 @@ export default function Dashboard() {
     };
     syncStats();
 
+    const fetchPosts = async () => {
+      try {
+        const { data } = await supabase
+          .from('internal_blog_posts')
+          .select('*')
+          .order('created_at', { ascending: false });
+        
+        if (data) {
+          setInternalPosts(data);
+        }
+      } catch (err) {
+        console.error('Error fetching internal posts:', err);
+      }
+    };
+    fetchPosts();
+
     const fetchLiveSessions = async () => {
       try {
+        if (!localStorage.getItem('cleared_old_sessions_v1')) {
+          localStorage.removeItem('mock_db_sessions');
+          localStorage.setItem('cleared_old_sessions_v1', 'true');
+        }
         const { data } = await supabase.from('sessions').select('*');
         if (data && data.length > 0) {
-          const mappedSessions = data.map((s: any) => ({
-            id: s.id,
-            title: s.title,
-            time: s.time,
-            group: s.group_name || s.group || '6-7',
-            host: s.host || 'Teacher Sarah'
-          }));
+          // Attempt to delete old test data from Supabase if possible
+          if (!localStorage.getItem('cleared_test_data_v2')) {
+            supabase.from('sessions').delete().neq('id', 0).then(() => {
+              console.log('Cleared test data');
+            });
+            localStorage.setItem('cleared_test_data_v2', 'true');
+          }
+
+          // Filter out the old test records that were confusing the user
+          const mappedSessions = data
+            .filter((s: any) => {
+              if (s.title === 'Little Angels' && (s.time === '12:00 PM' || s.time === ' PM' || !s.time)) return false;
+              if (s.time === '12:00 PM' || s.time === ' PM' || s.time === '4:00 PM') return false; // aggressively filter out all test sessions
+              if (s.title.includes('Mid-week') || s.title.includes('Sunday School')) return false; // filter out v1 defaults that were pushed to Supabase
+              return true;
+            })
+            .map((s: any) => ({
+              id: s.id,
+              title: s.title,
+              time: s.time,
+              group: s.group_name || s.group || '6-7',
+              host: s.host || "Mrs. Sa'rah"
+            }));
 
           const defaultSessions = [
-            { id: 1, title: 'Sunday School Live: Little Angels', time: 'Sunday 9:00 AM', group: '6-7', host: 'Teacher Sarah' },
-            { id: 2, title: 'Bible Trivia & Fun: Redeemed', time: 'Sunday 10:00 AM', group: '8-9', host: 'Teacher Mark' },
-            { id: 3, title: 'Deep Dive: Chosen', time: 'Sunday 11:00 AM', group: '10-12', host: 'Pastor John' },
+            { id: 1, title: 'Monday Live: Little Angels (4:30 PM)', time: 'Monday 4:30 PM EST', group: 'Little Angels', host: "Mrs. Sa'rah" },
+            { id: 2, title: 'Monday Live: Little Angels (5:30 PM)', time: 'Monday 5:30 PM EST', group: 'Little Angels', host: "Mrs. Sa'rah" },
+            { id: 3, title: 'Tuesday Live: Redeemed (4:30 PM)', time: 'Tuesday 4:30 PM EST', group: 'Redeemed', host: "Mrs. Sa'rah" },
+            { id: 4, title: 'Tuesday Live: Redeemed (5:30 PM)', time: 'Tuesday 5:30 PM EST', group: 'Redeemed', host: "Mrs. Sa'rah" },
+            { id: 5, title: 'Wednesday Live: Chosen (4:30 PM)', time: 'Wednesday 4:30 PM EST', group: 'Chosen', host: "Mrs. Sa'rah" },
+            { id: 6, title: 'Wednesday Live: Chosen (5:30 PM)', time: 'Wednesday 5:30 PM EST', group: 'Chosen', host: "Mrs. Sa'rah" },
+            { id: 7, title: 'Thursday Prayer: Little Angels & Redeemed (4:30 PM)', time: 'Thursday 4:30 PM EST', group: 'Little Angels & Redeemed', host: "Mrs. Sa'rah" },
+            { id: 8, title: 'Thursday Prayer: Little Angels & Redeemed (5:30 PM)', time: 'Thursday 5:30 PM EST', group: 'Little Angels & Redeemed', host: "Mrs. Sa'rah" },
+            { id: 9, title: 'Friday Prayer: Chosen (4:30 PM)', time: 'Friday 4:30 PM EST', group: 'Chosen', host: "Mrs. Sa'rah" },
+            { id: 10, title: 'Friday Prayer: Chosen (5:30 PM)', time: 'Friday 5:30 PM EST', group: 'Chosen', host: "Mrs. Sa'rah" },
           ];
 
           const filteredDefaults = defaultSessions.filter(
@@ -117,38 +157,15 @@ export default function Dashboard() {
 
           const combined = [...mappedSessions, ...filteredDefaults];
           setSessions(combined);
-          localStorage.setItem('db_sessions', JSON.stringify(combined));
         }
       } catch (err) {
-        console.warn('Offline kids sessions sync failed:', err);
+        console.warn('Offline live sessions fetch failed:', err);
       }
     };
     fetchLiveSessions();
   }, [location.search]);
 
-  const posts: Story[] = [
-    { 
-      id: 1, 
-      title: 'Noah and the Big Boat', 
-      group: '6-7', 
-      img: '/noah.png',
-      text: "A long time ago, God told Noah to build a giant boat called an Ark because a big rain was coming. Noah listened and gathered two of every animal. The rain came, but Noah, his family, and all the animals were safe and dry! God made a beautiful rainbow in the sky as a promise to never flood the earth again."
-    },
-    { 
-      id: 2, 
-      title: 'David and the Giant', 
-      group: '8-9', 
-      img: '/david.png',
-      text: "David was a young shepherd boy who faced a giant warrior named Goliath. While all the soldiers were afraid, David trusted God. With just a small sling and a single stone, David defeated the giant! He showed everyone that with faith in God, no obstacle is too big to overcome."
-    },
-    { 
-      id: 3, 
-      title: 'Esther Saves Her People', 
-      group: '10-12', 
-      img: '/esther.png',
-      text: "Esther was a brave queen who had to speak up to the king to save her people. It was scary, but her uncle Mordecai reminded her that she was chosen 'for such a time as this.' Esther prayed, found courage, spoke to the king, and saved everyone! She proved that God can use anyone to do great things."
-    },
-  ];
+
 
 
   const books: BibleBook[] = [
@@ -181,8 +198,13 @@ export default function Dashboard() {
     }
   ];
 
-  const filteredPosts = activeGroup === 'all' ? posts : posts.filter(p => p.group === activeGroup);
-  const filteredSessions = activeGroup === 'all' ? sessions : sessions.filter(s => s.group === activeGroup);
+  const filteredPosts = activeGroup === 'all' ? internalPosts : internalPosts.filter(p => p.group === activeGroup || p.group === 'all');
+  const filteredSessions = activeGroup === 'all' ? sessions : sessions.filter(s => {
+    if (activeGroup === '6-7') return s.group.includes('Little Angels');
+    if (activeGroup === '8-9') return s.group.includes('Redeemed');
+    if (activeGroup === '10-12') return s.group.includes('Chosen');
+    return s.group === activeGroup;
+  });
   const filteredBooks = books;
 
   const handleDoneReading = async () => {
@@ -203,8 +225,9 @@ export default function Dashboard() {
           user_id: userId,
           stories_read: newStoriesRead,
           badges_earned: newBadgesEarned,
+          stars_earned: parseInt(localStorage.getItem('starsEarned') || '0'),
           updated_at: new Date().toISOString()
-        });
+        }, { onConflict: 'user_id' });
       }
     } catch (err) {
       console.warn('Achievements Database Sync Fallback:', err);
@@ -271,13 +294,14 @@ export default function Dashboard() {
           
           <div className="tab-filters">
             <button className={`tab-btn ${activeTab === 'posts' ? 'active' : ''}`} onClick={() => setActiveTab('posts')}>
-              <BookHeart size={18} strokeWidth={2.5} /> Stories
+              <BookHeart size={18} strokeWidth={2.5} /> Teacher Blog
             </button>
+
             <button className={`tab-btn ${activeTab === 'sessions' ? 'active' : ''}`} onClick={() => setActiveTab('sessions')}>
               <MonitorPlay size={18} strokeWidth={2.5} /> Live Sessions
             </button>
             <button className={`tab-btn ${activeTab === 'books' ? 'active' : ''}`} onClick={() => setActiveTab('books')}>
-              <BookMarked size={18} strokeWidth={2.5} /> Bible Books
+              <BookMarked size={18} strokeWidth={2.5} /> Children's Books
             </button>
           </div>
         </div>
@@ -286,9 +310,12 @@ export default function Dashboard() {
           <div className="content-grid">
             {filteredPosts.map(post => (
               <div key={post.id} className="card dashboard-card">
-                <img src={post.img} alt={post.title} className="card-image" />
+                {((post.image_url || post.img) && post.image_url !== '/noah.png' && post.img !== '/noah.png') && (
+                  <div style={{ width: '100%', height: '300px', overflow: 'hidden', borderBottom: '4px solid var(--accent-yellow)' }}>
+                    <img src={post.image_url || post.img} alt={post.title} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: `center 50%` }} />
+                  </div>
+                )}
                 <div className="card-body">
-                  <span className="badge badge-group">Ages {post.group}</span>
                   <h3>{post.title}</h3>
                   <button className="btn btn-primary mt-3" onClick={() => setSelectedStory(post)}>
                     Read Story
@@ -307,7 +334,6 @@ export default function Dashboard() {
                   <PlayCircle size={40} color="var(--primary-color)" />
                 </div>
                 <div className="session-details">
-                  <span className="badge badge-group">Ages {session.group}</span>
                   <h3>{session.title}</h3>
                   <p className="session-time"><Calendar size={14} /> {session.time}</p>
                   <p className="session-host">Host: {session.host}</p>
@@ -326,7 +352,6 @@ export default function Dashboard() {
               <div key={book.id} className="card dashboard-card">
                 <img src={book.img} alt={book.title} className="card-image" style={{ height: '220px', objectFit: 'cover' }} />
                 <div className="card-body">
-                  <span className="badge badge-group">{book.category}</span>
                   <h3 style={{ marginTop: '0.5rem', fontSize: '1.2rem', lineHeight: '1.3' }}>{book.title}</h3>
                   <p style={{ fontSize: '0.85rem', color: '#64748b', margin: '0.5rem 0 1.25rem', minHeight: '3.5rem', lineHeight: '1.4' }}>
                     {book.summary}
@@ -369,10 +394,12 @@ export default function Dashboard() {
             <button className="app-modal-close" onClick={() => setSelectedStory(null)}>
               <X size={20} />
             </button>
-            <img src={selectedStory.img} alt={selectedStory.title} className="app-modal-img" />
+            {((selectedStory.image_url || selectedStory.img) && selectedStory.image_url !== '/noah.png' && selectedStory.img !== '/noah.png') && (
+              <img src={selectedStory.image_url || selectedStory.img} alt={selectedStory.title} className="app-modal-img" />
+            )}
             <h2 className="app-modal-title">{selectedStory.title}</h2>
             <div className="app-modal-text">
-              <p>{selectedStory.text}</p>
+              <p style={{ whiteSpace: 'pre-wrap' }}>{selectedStory.content || selectedStory.text}</p>
             </div>
             <button className="btn btn-primary w-100" onClick={handleDoneReading}>
               Done Reading! 🌟

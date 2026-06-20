@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { supabase } from '../lib/supabaseClient';
 import './Auth.css';
 
 export default function Signup() {
@@ -12,31 +14,40 @@ export default function Signup() {
   const initialGroup = queryParams.get('group') || '';
   const [ageGroup, setAgeGroup] = useState(initialGroup);
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
-  const handleSignup = (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     const emailInput = (document.getElementById('email') as HTMLInputElement).value.toLowerCase().trim();
+    const passwordInput = (document.getElementById('password') as HTMLInputElement).value;
     
-    if (emailInput === 'viankamanzi50@gmail.com') {
-      setError('This email is reserved for the authorized teacher account and cannot be registered.');
-      return;
-    }
-    
-    if (emailInput.includes('teacher')) {
-      setError('Teacher registration is restricted. Please contact your administrator.');
-      return;
-    }
+    // Removed restriction to allow the admin to register the teacher account directly via the app.
     
     let selectedRole: 'parent' | 'student' = 'student';
     if (emailInput.includes('parent')) {
       selectedRole = 'parent';
     }
     
-    login(selectedRole);
-    
-    const queryParams = new URLSearchParams(location.search);
-    const redirectUrl = queryParams.get('redirect') || '/dashboard';
-    navigate(redirectUrl);
+    try {
+      const { data, error: signUpError } = await supabase.auth.signUp({
+        email: emailInput,
+        password: passwordInput,
+      });
+
+      if (signUpError) throw signUpError;
+
+      if (data?.session) {
+        await login(selectedRole, emailInput, passwordInput);
+        const queryParams = new URLSearchParams(location.search);
+        const redirectUrl = queryParams.get('redirect') || '/dashboard';
+        navigate(redirectUrl);
+      } else {
+        alert("Account created successfully! Please check your email to confirm your account before logging in.");
+        navigate('/login');
+      }
+    } catch (err: any) {
+      setError(err.message);
+    }
   };
 
   return (
@@ -95,13 +106,23 @@ export default function Signup() {
             
             <div className="input-group">
               <label htmlFor="password">Password</label>
-              <input 
-                type="password" 
-                id="password" 
-                className="input-control" 
-                placeholder="Create a strong password" 
-                required 
-              />
+              <div style={{ position: 'relative' }}>
+                <input 
+                  type={showPassword ? "text" : "password"} 
+                  id="password" 
+                  className="input-control" 
+                  placeholder="Create a strong password" 
+                  required 
+                  style={{ paddingRight: '40px' }}
+                />
+                <button 
+                  type="button" 
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#888' }}
+                >
+                  {showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
+                </button>
+              </div>
             </div>
             
             <div className="input-group checkbox-group">

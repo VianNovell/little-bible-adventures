@@ -1,5 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { useState } from 'react';
 import { AuthProvider } from './context/AuthContext';
+import SplashScreen from './components/SplashScreen';
 import BottomNav from './components/BottomNav';
 import Home from './pages/Home';
 import Login from './pages/Login';
@@ -54,10 +56,15 @@ function AppShell() {
 }
 
 function App() {
+  const [showSplash, setShowSplash] = useState(true);
+
   return (
-    <Router>
-      <AppShell />
-    </Router>
+    <>
+      {showSplash && <SplashScreen onComplete={() => setShowSplash(false)} />}
+      <Router>
+        <AppShell />
+      </Router>
+    </>
   );
 }
 

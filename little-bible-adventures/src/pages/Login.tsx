@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import './Auth.css';
 
@@ -10,34 +11,38 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (email.toLowerCase().trim() === 'viankamanzi50@gmail.com') {
-      if (password.trim() === '78910') {
-        await login('teacher');
-        localStorage.setItem('teacherAuth', 'true');
-        localStorage.setItem('teacherName', 'Vian');
+    const emailInput = email.toLowerCase().trim();
+    
+    if (emailInput === 'viankamanzi50@gmail.com') {
+      try {
+        await login('teacher', emailInput, password);
         const queryParams = new URLSearchParams(location.search);
         const redirectUrl = queryParams.get('redirect') || '/teacher-dashboard';
         navigate(redirectUrl);
-      } else {
-        setError('Incorrect password for teacher account.');
+      } catch (err: any) {
+        setError(err.message || 'Incorrect password or account does not exist.');
       }
     } else {
-      if (email.toLowerCase().includes('teacher')) {
+      if (emailInput.includes('teacher')) {
         setError('Access denied. Generic teacher logins are disabled. Please use the authorized teacher account.');
         return;
       }
-      if (email.toLowerCase().includes('parent')) {
-        await login('parent');
-      } else {
-        await login('student');
+      
+      const role = emailInput.includes('parent') ? 'parent' : 'student';
+      
+      try {
+        await login(role, emailInput, password);
+        const queryParams = new URLSearchParams(location.search);
+        const redirectUrl = queryParams.get('redirect') || '/dashboard';
+        navigate(redirectUrl);
+      } catch (err: any) {
+        setError(err.message || 'Invalid credentials.');
       }
-      const queryParams = new URLSearchParams(location.search);
-      const redirectUrl = queryParams.get('redirect') || '/dashboard';
-      navigate(redirectUrl);
     }
   };
 
@@ -73,15 +78,25 @@ export default function Login() {
 
             <div className="input-group">
               <label htmlFor="password">Password</label>
-              <input 
-                type="password" 
-                id="password" 
-                className="input-control" 
-                placeholder="Enter your password" 
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required 
-              />
+              <div style={{ position: 'relative' }}>
+                <input 
+                  type={showPassword ? "text" : "password"} 
+                  id="password" 
+                  className="input-control" 
+                  placeholder="Enter your password" 
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required 
+                  style={{ paddingRight: '40px' }}
+                />
+                <button 
+                  type="button" 
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#888' }}
+                >
+                  {showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
+                </button>
+              </div>
             </div>
             
             <button type="submit" className="btn btn-primary auth-submit">

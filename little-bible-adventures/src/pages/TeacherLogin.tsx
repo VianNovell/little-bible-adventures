@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Shield, LogIn } from 'lucide-react';
+import { Shield, LogIn, Eye, EyeOff } from 'lucide-react';
+import { supabase } from '../lib/supabaseClient';
 import './TeacherPortal.css';
 
 export default function TeacherLogin() {
@@ -8,15 +9,22 @@ export default function TeacherLogin() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email.toLowerCase().trim() === 'viankamanzi50@gmail.com' && password.trim() === '78910') {
+    try {
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password: password.trim(),
+      });
+      if (signInError) throw signInError;
+      
       localStorage.setItem('teacherAuth', 'true');
-      localStorage.setItem('teacherName', 'Vian');
+      localStorage.setItem('teacherName', data.user?.user_metadata?.full_name || 'Teacher');
       navigate('/teacher-portal/dashboard');
-    } else {
-      setError('Invalid credentials. Access restricted to the authorized teacher account only.');
+    } catch (err: any) {
+      setError(err.message || 'Invalid credentials.');
     }
   };
 
@@ -49,15 +57,25 @@ export default function TeacherLogin() {
 
           <div className="tp-input-group">
             <label htmlFor="tp-password">Password</label>
-            <input
-              id="tp-password"
-              type="password"
-              className="tp-input"
-              placeholder="Enter your password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
+            <div style={{ position: 'relative' }}>
+              <input
+                id="tp-password"
+                type={showPassword ? "text" : "password"}
+                className="tp-input"
+                placeholder="Enter your password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                style={{ paddingRight: '40px' }}
+              />
+              <button 
+                type="button" 
+                onClick={() => setShowPassword(!showPassword)}
+                style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#888' }}
+              >
+                {showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
+              </button>
+            </div>
           </div>
 
           <button type="submit" className="tp-btn-primary">

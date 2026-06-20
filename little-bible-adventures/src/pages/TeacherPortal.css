@@ -524,6 +524,8 @@
 .tp-modal {
   width: 100%;
   max-width: 400px;
+  max-height: 90vh;
+  overflow-y: auto;
   background-color: var(--card-bg);
   border-radius: var(--border-radius-md);
   padding: 1.75rem;

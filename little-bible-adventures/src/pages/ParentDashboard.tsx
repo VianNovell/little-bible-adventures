@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Activity, Star, Settings, ShieldCheck, X } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
+import { useAuth } from '../context/AuthContext';
 import './ParentDashboard.css';
 
 interface Kid {
@@ -45,6 +47,15 @@ const defaultActs: ActivityItem[] = [
 ];
 
 export default function ParentDashboard() {
+  const navigate = useNavigate();
+  const { userRole } = useAuth();
+
+  useEffect(() => {
+    if (!userRole) {
+      navigate('/login');
+    }
+  }, [userRole, navigate]);
+
   const [kids, setKids] = useState<Kid[]>(() => {
     const saved = localStorage.getItem('parentKids');
     if (saved) {
@@ -63,8 +74,23 @@ export default function ParentDashboard() {
   const [activities, setActivities] = useState<ActivityItem[]>(defaultActs);
 
   const [showModal, setShowModal] = useState(false);
+  const [editingKid, setEditingKid] = useState<Kid | null>(null);
   const [newName, setNewName] = useState('');
   const [newGroup, setNewGroup] = useState('Little Angels (6-7)');
+
+  const handleEditClick = (kid: Kid) => {
+    setEditingKid(kid);
+    setNewName(kid.name);
+    setNewGroup(kid.group);
+    setShowModal(true);
+  };
+
+  const closeAndResetModal = () => {
+    setShowModal(false);
+    setEditingKid(null);
+    setNewName('');
+    setNewGroup('Little Angels (6-7)');
+  };
 
   useEffect(() => {
     // Dynamically retrieve synced kids profiles and activities from the cloud database
@@ -114,96 +140,76 @@ export default function ParentDashboard() {
     syncParentData();
   }, []);
 
-  const handleAddChild = async (e: React.FormEvent) => {
+  const handleAddOrEditChild = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newName.trim()) return;
 
-    // Dynamically cycle color themes based on the length of kids list
-    const colorThemes = [
-      { colorClass: 'card-blue', badgeClass: 'badge-tweens' },
-      { colorClass: 'card-green', badgeClass: 'badge-kids' },
-      { colorClass: 'card-yellow', badgeClass: 'badge-toddler' },
-      { colorClass: 'card-purple', badgeClass: 'badge-teens' }
-    ];
-    const theme = colorThemes[kids.length % colorThemes.length];
+    let colorClass = 'card-purple';
+    let badgeClass = 'badge-toddler';
 
-    const childId = Date.now();
-    const newChild: Kid = {
-      id: childId,
-      name: newName.trim(),
-      group: newGroup,
-      avatar: newName.trim().charAt(0).toUpperCase(),
-      colorClass: theme.colorClass,
-      badgeClass: theme.badgeClass
-    };
-
-    // Prepend a new real-time activity for this child registration
-    const actId = childId + 1;
-    const newAct: ActivityItem = {
-      id: actId,
-      message: <><strong>{newName.trim()}</strong> registered successfully as a new adventurer!</>,
-      time: 'Just now',
-      iconBgClass: theme.colorClass.replace('card-', 'bg-'),
-      icon: 'star'
-    };
-
-    const updatedKids = [...kids, newChild];
-    setKids(updatedKids);
-    localStorage.setItem('parentKids', JSON.stringify(updatedKids));
-
-    const updatedActs = [newAct, ...activities];
-    setActivities(updatedActs);
-
-    // 1. Sync child registration to Supabase Kids table (Cloud Insert)
-    try {
-      const { data: sessionData } = await supabase.auth.getSession();
-      const userId = sessionData?.session?.user?.id;
-      await supabase.from('kids').insert({
-        parent_id: userId || 'mock-parent-id',
-        name: newChild.name,
-        group_name: newChild.group,
-        avatar: newChild.avatar,
-        color_theme: newChild.colorClass
-      });
-    } catch (err) {
-      console.warn('Supabase Kids Insert offline fallback:', err);
+    if (newGroup.includes('8-9')) {
+      colorClass = 'card-yellow';
+      badgeClass = 'badge-kids';
+    } else if (newGroup.includes('10-12')) {
+      colorClass = 'card-blue';
+      badgeClass = 'badge-tweens';
     }
 
-    // 2. Sync registration activity log to Supabase Activities table (Cloud Insert)
-    try {
-      const { data: sessionData } = await supabase.auth.getSession();
-      const userId = sessionData?.session?.user?.id;
-      await supabase.from('activities').insert({
-        parent_id: userId || 'mock-parent-id',
-        child_name: newChild.name,
-        message: 'registered successfully as a new adventurer!',
-        time_label: 'Just now',
-        icon_bg: theme.colorClass.replace('card-', 'bg-'),
-        icon_name: 'star'
-      });
-    } catch (err) {
-      console.warn('Supabase Activities Insert offline fallback:', err);
+    if (editingKid) {
+      const updatedKids = kids.map(k => 
+        k.id === editingKid.id 
+          ? { ...k, name: newName, group: newGroup, avatar: newName.charAt(0).toUpperCase(), colorClass, badgeClass } 
+          : k
+      );
+      setKids(updatedKids);
+      localStorage.setItem('parentKids', JSON.stringify(updatedKids));
+
+      try {
+        const { data: sessionData } = await supabase.auth.getSession();
+        const userId = sessionData?.session?.user?.id;
+        if (userId) {
+          await supabase.from('kids').update({
+            name: newName,
+            group_name: newGroup,
+            avatar: newName.charAt(0).toUpperCase(),
+            color_theme: colorClass
+          }).eq('id', editingKid.id);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    } else {
+      const newKid: Kid = {
+        id: Date.now(),
+        name: newName,
+        group: newGroup,
+        avatar: newName.charAt(0).toUpperCase(),
+        colorClass,
+        badgeClass,
+      };
+
+      const updatedKids = [...kids, newKid];
+      setKids(updatedKids);
+      localStorage.setItem('parentKids', JSON.stringify(updatedKids));
+
+      try {
+        const { data: sessionData } = await supabase.auth.getSession();
+        const userId = sessionData?.session?.user?.id;
+        if (userId) {
+          await supabase.from('kids').insert({
+            parent_id: userId,
+            name: newName,
+            group_name: newGroup,
+            avatar: newName.charAt(0).toUpperCase(),
+            color_theme: colorClass
+          });
+        }
+      } catch (err) {
+        console.error(err);
+      }
     }
 
-    // Local Storage backup for offline resilience
-    try {
-      const parentActivities = JSON.parse(localStorage.getItem('parentActivities') || '[]');
-      parentActivities.unshift({
-        id: actId,
-        childName: newName.trim(),
-        message: 'registered successfully as a new adventurer!',
-        time: 'Just now',
-        iconBgClass: theme.colorClass.replace('card-', 'bg-'),
-        icon: 'star'
-      });
-      localStorage.setItem('parentActivities', JSON.stringify(parentActivities));
-    } catch (err) {
-      console.error(err);
-    }
-
-    setNewName('');
-    setNewGroup('Little Angels (6-7)');
-    setShowModal(false);
+    closeAndResetModal();
   };
 
   return (
@@ -232,7 +238,7 @@ export default function ParentDashboard() {
                     <p className={`badge ${kid.badgeClass}`}>{kid.group}</p>
                   </div>
                   <div className="kid-actions">
-                    <button className="btn btn-outline btn-sm">Edit Profile</button>
+                    <button className="btn btn-outline btn-sm" onClick={() => handleEditClick(kid)}>Edit Profile</button>
                   </div>
                 </div>
               ))}
@@ -273,15 +279,15 @@ export default function ParentDashboard() {
         </div>
       </div>
 
-      {/* Add Child Modal */}
+      {/* Add/Edit Child Modal */}
       {showModal && (
-        <div className="parent-modal-overlay" onClick={() => setShowModal(false)}>
+        <div className="parent-modal-overlay" onClick={closeAndResetModal}>
           <div className="parent-modal card" onClick={e => e.stopPropagation()}>
-            <button className="parent-modal-close" onClick={() => setShowModal(false)}>
+            <button className="parent-modal-close" onClick={closeAndResetModal}>
               <X size={20} />
             </button>
-            <h2>Add Another Child</h2>
-            <form onSubmit={handleAddChild} className="auth-form">
+            <h2>{editingKid ? 'Edit Child' : 'Add Another Child'}</h2>
+            <form onSubmit={handleAddOrEditChild} className="auth-form">
               <div className="input-group">
                 <label htmlFor="childName">Child's Name</label>
                 <input
@@ -314,8 +320,8 @@ export default function ParentDashboard() {
                 <button type="button" className="btn btn-outline" onClick={() => setShowModal(false)}>
                   Cancel
                 </button>
-                <button type="submit" className="btn btn-primary">
-                  Add Child
+                <button type="submit" className="btn btn-primary w-100 mt-2">
+                  {editingKid ? 'Save Changes' : 'Add Child'}
                 </button>
               </div>
             </form>
