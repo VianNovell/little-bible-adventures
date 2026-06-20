@@ -674,6 +674,66 @@ export default function TeacherDashboard() {
           </div>
         </div>
       )}
+      {/* Post Memory Verse Modal */}
+      {showVerseModal && (
+        <div className="tp-modal-overlay" onClick={() => setShowVerseModal(false)}>
+          <div className="tp-modal card animate-slide-up" onClick={e => e.stopPropagation()}>
+            <button className="tp-modal-close" onClick={() => setShowVerseModal(false)}>
+              <X size={20} />
+            </button>
+            <h2 style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <BookOpen size={24} color="var(--primary-color)" /> Post Memory Verse
+            </h2>
+            <form onSubmit={handlePostVerse} className="auth-form">
+              <div className="input-group">
+                <label htmlFor="verse-ref">Scripture Reference</label>
+                <input
+                  type="text"
+                  id="verse-ref"
+                  className="input-control"
+                  placeholder="e.g. John 3:16"
+                  value={verseRef}
+                  onChange={e => setVerseRef(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="input-group">
+                <label htmlFor="verse-difficulty">Difficulty Level</label>
+                <select
+                  id="verse-difficulty"
+                  className="input-control select-control"
+                  value={verseDifficulty}
+                  onChange={e => setVerseDifficulty(e.target.value)}
+                  required
+                >
+                  <option value="Easy">Easy (Ages 6-7)</option>
+                  <option value="Medium">Medium (Ages 8-9)</option>
+                  <option value="Hard">Hard (Ages 10-12)</option>
+                </select>
+              </div>
+
+              <div className="input-group">
+                <label htmlFor="verse-text">Verse Text</label>
+                <textarea
+                  id="verse-text"
+                  className="input-control"
+                  placeholder="For God so loved the world..."
+                  rows={4}
+                  value={verseText}
+                  onChange={e => setVerseText(e.target.value)}
+                  required
+                  style={{ resize: 'vertical' }}
+                ></textarea>
+              </div>
+
+              <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '1rem' }}>
+                Publish Verse to Kids
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
