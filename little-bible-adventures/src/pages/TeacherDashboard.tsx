@@ -354,14 +354,14 @@ export default function TeacherDashboard() {
             <div className="stat-icon bg-blue"><BookOpen color="white" /></div>
             <div className="stat-info">
               <h3>{internalPosts.length}</h3>
-              <p>Stories Posted</p>
+              <p>Devotionals</p>
             </div>
           </div>
         </div>
 
         <div className="quick-actions">
           <button className="btn btn-primary" onClick={() => setShowModal(true)}><Plus size={18} /> Schedule Session</button>
-          <button className="btn btn-secondary" onClick={handleNewBlogClick}><Edit size={18} /> Write Internal Blog</button>
+          <button className="btn btn-secondary" onClick={handleNewBlogClick}><Edit size={18} /> Write Devotional</button>
           <button className="btn btn-outline" onClick={() => setShowVerseModal(true)}><BookOpen size={18} /> Post Memory Verse</button>
           <button className="btn btn-outline" onClick={() => setShowSettingsModal(true)}><Settings size={18} /> Class Settings</button>
         </div>
@@ -387,9 +387,9 @@ export default function TeacherDashboard() {
           </div>
 
           <div className="section-card card">
-            <h2 className="section-title-sm">Recent Internal Posts</h2>
+            <h2 className="section-title-sm">Recent Devotionals</h2>
             <div className="story-list">
-              {internalPosts.length === 0 && <p style={{ fontSize: '0.9rem', color: '#666' }}>No posts yet.</p>}
+              {internalPosts.length === 0 && <p style={{ fontSize: '0.9rem', color: '#666' }}>No devotionals yet.</p>}
               {internalPosts.slice(0, 3).map(post => (
                 <div key={post.id} className="story-item">
                   <BookOpen size={24} className="story-icon" />
@@ -506,7 +506,7 @@ export default function TeacherDashboard() {
             <button className="tp-modal-close" onClick={() => setShowBlogModal(false)}>
               <X size={20} />
             </button>
-            <h2 style={{ marginBottom: '1.5rem', fontSize: '1.4rem' }}>{editingPostId ? 'Edit Blog Post' : 'Write Internal Blog Post'}</h2>
+            <h2 style={{ marginBottom: '1.5rem', fontSize: '1.4rem' }}>{editingPostId ? 'Edit Devotional' : 'Write Devotional'}</h2>
             <form onSubmit={handleCreateBlogPost} className="auth-form">
               <div className="input-group">
                 <label htmlFor="blog-title">Title</label>
@@ -582,11 +582,11 @@ export default function TeacherDashboard() {
               </div>
 
               <div className="input-group">
-                <label htmlFor="blog-text">Post Content</label>
+                <label htmlFor="blog-text">Devotional Content</label>
                 <textarea
                   id="blog-text"
                   className="input-control"
-                  placeholder="Write your story or update here..."
+                  placeholder="Write your devotional here..."
                   rows={4}
                   value={blogText}
                   onChange={e => setBlogText(e.target.value)}
@@ -596,7 +596,7 @@ export default function TeacherDashboard() {
               </div>
 
               <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '1rem' }}>
-                Publish Post
+                Publish Devotional
               </button>
             </form>
           </div>

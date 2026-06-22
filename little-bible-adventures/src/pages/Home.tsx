@@ -30,8 +30,8 @@ export default function Home() {
   const features = [
     {
       icon: <BookOpen size={28} />,
-      label: 'Blog',
-      desc: 'Read the latest updates and stories on our blog.',
+      label: 'Devotionals',
+      desc: 'Read our latest devotionals.',
       cardClass: 'card-yellow',
       iconClass: 'bg-yellow',
       redirect: 'https://www.littlebibleadventures.org/blog',

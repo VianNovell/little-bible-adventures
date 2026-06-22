@@ -343,14 +343,14 @@ export default function TeacherPortalDashboard() {
         {activeTab === 'stories' && (
           <div>
             <div className="tp-section-header">
-              <h3>Internal Class Blog</h3>
+              <h3>Class Devotional</h3>
               <div style={{ display: 'flex', gap: '0.5rem' }}>
                 <button className="tp-btn-outline-sm" onClick={() => setShowVerseModal(true)}><BookOpen size={14} /> Post Verse</button>
-                <button className="tp-btn-primary-sm" onClick={() => setShowBlogModal(true)}><Plus size={14} /> Write Post</button>
+                <button className="tp-btn-primary-sm" onClick={() => setShowBlogModal(true)}><Plus size={14} /> Write Devotional</button>
               </div>
             </div>
             <div className="card tp-card">
-              {internalPosts.length === 0 && <p style={{padding:'1rem', textAlign:'center', color:'#666'}}>You haven't written any internal blog posts yet.</p>}
+              {internalPosts.length === 0 && <p style={{padding:'1rem', textAlign:'center', color:'#666'}}>You haven't written any devotionals yet.</p>}
               {internalPosts.map(s => (
                 <div key={s.id} className="tp-story-row">
                   <BookOpen size={18} className="tp-story-icon" />
@@ -514,7 +514,7 @@ export default function TeacherPortalDashboard() {
             <button className="tp-modal-close" onClick={() => setShowBlogModal(false)}>
               <X size={20} />
             </button>
-            <h2>Write Internal Blog Post</h2>
+            <h2>Write Devotional</h2>
             <form onSubmit={handleCreateBlogPost} className="tp-form">
               <div className="tp-input-group">
                 <label htmlFor="blog-title">Title</label>
@@ -562,11 +562,11 @@ export default function TeacherPortalDashboard() {
               </div>
 
               <div className="tp-input-group">
-                <label htmlFor="blog-text">Post Content</label>
+                <label htmlFor="blog-text">Devotional Content</label>
                 <textarea
                   id="blog-text"
                   className="tp-input"
-                  placeholder="Write your story or update here..."
+                  placeholder="Write your devotional here..."
                   rows={4}
                   value={blogText}
                   onChange={e => setBlogText(e.target.value)}
@@ -579,7 +579,7 @@ export default function TeacherPortalDashboard() {
                   Cancel
                 </button>
                 <button type="submit" className="tp-btn-primary" style={{ marginTop: 0 }}>
-                  Publish Post
+                  Publish Devotional
                 </button>
               </div>
             </form>

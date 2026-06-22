@@ -294,7 +294,7 @@ export default function Dashboard() {
           
           <div className="tab-filters">
             <button className={`tab-btn ${activeTab === 'posts' ? 'active' : ''}`} onClick={() => setActiveTab('posts')}>
-              <BookHeart size={18} strokeWidth={2.5} /> Teacher Blog
+              <BookHeart size={18} strokeWidth={2.5} /> Teacher Devotionals
             </button>
 
             <button className={`tab-btn ${activeTab === 'sessions' ? 'active' : ''}`} onClick={() => setActiveTab('sessions')}>
@@ -318,7 +318,7 @@ export default function Dashboard() {
                 <div className="card-body">
                   <h3>{post.title}</h3>
                   <button className="btn btn-primary mt-3" onClick={() => setSelectedStory(post)}>
-                    Read Story
+                    Read Devotional
                   </button>
                 </div>
               </div>
