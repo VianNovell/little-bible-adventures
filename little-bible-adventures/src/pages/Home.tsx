@@ -68,7 +68,7 @@ export default function Home() {
         <div className="container hero-container">
           <div className="hero-content">
             <h1 className="hero-title">
-              LITTLE <span className="highlight-text animate-pulse">BIBLE</span> ADVENTURES.
+              LITTLE <span className="animate-pulse" style={{ color: 'var(--text-color)' }}>BIBLE</span> ADVENTURES.
             </h1>
             <p className="hero-subtitle">
               A Christian Faith-Based Platform for Kids. Exciting Bible stories, fun activities, and interactive sessions for kids ages 6 to 12
