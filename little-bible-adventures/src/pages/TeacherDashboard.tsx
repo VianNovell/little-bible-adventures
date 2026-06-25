@@ -538,48 +538,6 @@ export default function TeacherDashboard() {
                 </select>
               </div>
 
-              <div className="input-group">
-                <label htmlFor="blog-img">Upload Image (Optional)</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  id="blog-img"
-                  className="input-control"
-                  onChange={handleImageUpload}
-                  style={{ padding: '0.5rem' }}
-                />
-                {blogImg && blogImg !== '/noah.png' && (
-                  <>
-                    <div style={{ width: '100%', height: '250px', overflow: 'hidden', marginTop: '0.5rem', borderRadius: '8px', backgroundColor: '#f1f5f9' }}>
-                      <img src={blogImg} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: `center ${blogImgPos}%`, transform: `scale(${blogImgScale})` }} />
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '0.5rem' }}>
-                      <label style={{ fontSize: '0.9rem', color: '#666', minWidth: '85px' }}>Zoom Image:</label>
-                      <input 
-                        type="range" 
-                        min="0.5" 
-                        max="2" 
-                        step="0.05" 
-                        value={blogImgScale} 
-                        onChange={e => setBlogImgScale(parseFloat(e.target.value))} 
-                        style={{ flex: 1 }} 
-                      />
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '0.5rem' }}>
-                      <label style={{ fontSize: '0.9rem', color: '#666', minWidth: '85px' }}>Adjust Vertical:</label>
-                      <input 
-                        type="range" 
-                        min="0" 
-                        max="100" 
-                        step="1" 
-                        value={blogImgPos} 
-                        onChange={e => setBlogImgPos(parseInt(e.target.value))} 
-                        style={{ flex: 1 }} 
-                      />
-                    </div>
-                  </>
-                )}
-              </div>
 
               <div className="input-group">
                 <label htmlFor="blog-text">Devotional Content</label>

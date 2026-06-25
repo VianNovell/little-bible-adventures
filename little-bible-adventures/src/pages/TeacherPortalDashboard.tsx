@@ -546,20 +546,6 @@ export default function TeacherPortalDashboard() {
                 </select>
               </div>
 
-              <div className="tp-input-group">
-                <label htmlFor="blog-img">Upload Image (Optional)</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  id="blog-img"
-                  className="tp-input"
-                  onChange={handleImageUpload}
-                  style={{ padding: '0.5rem' }}
-                />
-                {blogImg && blogImg !== '/noah.png' && (
-                  <img src={blogImg} alt="Preview" style={{ width: '100%', height: '120px', objectFit: 'cover', marginTop: '0.5rem', borderRadius: '8px' }} />
-                )}
-              </div>
 
               <div className="tp-input-group">
                 <label htmlFor="blog-text">Devotional Content</label>
