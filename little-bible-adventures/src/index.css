@@ -35,7 +35,7 @@
 }
 
 body {
-  background-color: #cbd5e1; /* A soft grey background to frame the app on desktop */
+  background-color: var(--bg-color); /* White/off-white background instead of grey */
   color: var(--text-color);
   font-family: var(--font-body);
   line-height: 1.6;
