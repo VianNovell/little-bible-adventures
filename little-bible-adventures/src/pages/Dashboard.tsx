@@ -9,8 +9,10 @@ interface Story {
   id: number;
   title: string;
   group: string;
-  img: string;
-  text: string;
+  img?: string;
+  image_url?: string;
+  text?: string;
+  content?: string;
 }
 
 interface BibleBook {

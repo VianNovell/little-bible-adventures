@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from 'react';
-import { LogOut, Star, Award, Settings, Camera, UserCircle } from 'lucide-react';
+import { LogOut, Star, Award, Camera, UserCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabaseClient';
 import './Profile.css';

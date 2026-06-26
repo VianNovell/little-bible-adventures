@@ -165,16 +165,7 @@ export default function TeacherPortalDashboard() {
     setShowModal(false);
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setBlogImg(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
+
 
   const handleCreateBlogPost = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -48,7 +48,7 @@ export default function MemoryVerse({ onClose }: MemoryVerseProps) {
   useEffect(() => {
     const fetchVerses = async () => {
       try {
-        const { data, error } = await supabase.from('memory_verses').select('*').order('created_at', { ascending: false });
+        const { data } = await supabase.from('memory_verses').select('*').order('created_at', { ascending: false });
         if (data && data.length > 0) {
           setLiveVerses(data);
         } else {

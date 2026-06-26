@@ -1,20 +1,28 @@
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
-import { useState } from 'react';
+import { Suspense, lazy, useState } from 'react';
 import { AuthProvider } from './context/AuthContext';
 import SplashScreen from './components/SplashScreen';
 import BottomNav from './components/BottomNav';
-import Home from './pages/Home';
-import Login from './pages/Login';
-import Signup from './pages/Signup';
-import Dashboard from './pages/Dashboard';
-import VideoRoom from './pages/VideoRoom';
-import TeacherDashboard from './pages/TeacherDashboard';
-import ParentDashboard from './pages/ParentDashboard';
-import Profile from './pages/Profile';
-import Activities from './pages/Activities';
-import TeacherLogin from './pages/TeacherLogin';
-import TeacherPortalDashboard from './pages/TeacherPortalDashboard';
-import PrivacyPolicy from './pages/PrivacyPolicy';
+
+const Home = lazy(() => import('./pages/Home'));
+const Login = lazy(() => import('./pages/Login'));
+const Signup = lazy(() => import('./pages/Signup'));
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const VideoRoom = lazy(() => import('./pages/VideoRoom'));
+const TeacherDashboard = lazy(() => import('./pages/TeacherDashboard'));
+const ParentDashboard = lazy(() => import('./pages/ParentDashboard'));
+const Profile = lazy(() => import('./pages/Profile'));
+const Activities = lazy(() => import('./pages/Activities'));
+const TeacherLogin = lazy(() => import('./pages/TeacherLogin'));
+const TeacherPortalDashboard = lazy(() => import('./pages/TeacherPortalDashboard'));
+const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
+
+const LoadingFallback = () => (
+  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', width: '100%', color: 'var(--primary-color)' }}>
+    <div className="loader" style={{ width: '40px', height: '40px', border: '4px solid #f3f3f3', borderTop: '4px solid var(--primary-color)', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+    <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
+  </div>
+);
 
 // Wrapper: Teacher portal routes bypass the kids' mobile shell entirely
 function AppShell() {
@@ -25,10 +33,12 @@ function AppShell() {
     return (
       <div className="mobile-app-wrapper">
         <main className="mobile-content">
-          <Routes>
-            <Route path="/teacher-portal" element={<TeacherLogin />} />
-            <Route path="/teacher-portal/dashboard" element={<TeacherPortalDashboard />} />
-          </Routes>
+          <Suspense fallback={<LoadingFallback />}>
+            <Routes>
+              <Route path="/teacher-portal" element={<TeacherLogin />} />
+              <Route path="/teacher-portal/dashboard" element={<TeacherPortalDashboard />} />
+            </Routes>
+          </Suspense>
         </main>
       </div>
     );
@@ -38,18 +48,20 @@ function AppShell() {
     <AuthProvider>
       <div className="mobile-app-wrapper">
         <main className="mobile-content">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/activities" element={<Activities />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/room/:id" element={<VideoRoom />} />
-            <Route path="/teacher-dashboard" element={<TeacherDashboard />} />
-            <Route path="/parent-dashboard" element={<ParentDashboard />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/privacy" element={<PrivacyPolicy />} />
-          </Routes>
+          <Suspense fallback={<LoadingFallback />}>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/activities" element={<Activities />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/room/:id" element={<VideoRoom />} />
+              <Route path="/teacher-dashboard" element={<TeacherDashboard />} />
+              <Route path="/parent-dashboard" element={<ParentDashboard />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/privacy" element={<PrivacyPolicy />} />
+            </Routes>
+          </Suspense>
         </main>
         <BottomNav />
       </div>
