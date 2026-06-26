@@ -91,7 +91,7 @@ export default function Activities() {
           <img src="/logo.png" alt="Little Bible Adventures Logo" className="header-logo-img animate-float" />
           <div className="header-text-group">
             <h1 className="text-white">Activities 🎉</h1>
-            <p className="text-white">Games and Bible Trivia.</p>
+            <p className="text-white">Colouring books, Games and Bible Trivia</p>
           </div>
         </div>
       </div>
