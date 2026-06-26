@@ -38,7 +38,7 @@ export default function VideoRoom() {
       <div className="video-container">
         {/* We use Jitsi Meet for a free, instant, embedded video call */}
         <JitsiMeeting
-          domain="meet.ffmuc.net"
+          domain="jitsi.riot.im"
           roomName={roomName}
           configOverwrite={{
             startWithAudioMuted: audioMuted,
