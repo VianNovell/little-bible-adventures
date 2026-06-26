@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Users, Calendar, Plus, BookOpen, Edit, Settings, X } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 import './TeacherDashboard.css';
+import './TeacherPortal.css';
 
 export default function TeacherDashboard() {
   const navigate = useNavigate();
