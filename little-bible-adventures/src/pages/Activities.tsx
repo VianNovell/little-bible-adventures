@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { HelpCircle, Star, BookOpen, Mic2, Gamepad2, Heart } from 'lucide-react';
 import './Activities.css';
+import { supabase } from '../lib/supabaseClient';
 
 import BibleQuiz from '../components/activities/BibleQuiz';
 import MemoryVerse from '../components/activities/MemoryVerse';
@@ -48,7 +49,7 @@ const activities = [
   },
 ];
 
-const featured = {
+const defaultFeatured = {
   title: "This Week's Memory Verse",
   verse: '"For God so loved the world that He gave His one and only Son."',
   ref: 'John 3:16',
@@ -57,6 +58,30 @@ const featured = {
 export default function Activities() {
   const navigate = useNavigate();
   const [selectedActivity, setSelectedActivity] = useState<string | null>(null);
+  const [featured, setFeatured] = useState(defaultFeatured);
+
+  useEffect(() => {
+    const fetchLatestVerse = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('memory_verses')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .limit(1);
+        
+        if (data && data.length > 0) {
+          setFeatured({
+            title: "This Week's Memory Verse",
+            verse: `"${data[0].text}"`,
+            ref: data[0].reference,
+          });
+        }
+      } catch (err) {
+        console.error("Error fetching latest verse", err);
+      }
+    };
+    fetchLatestVerse();
+  }, []);
 
   return (
     <div className="activities-page">
@@ -65,8 +90,8 @@ export default function Activities() {
         <div className="container header-container-flex">
           <img src="/logo.png" alt="Little Bible Adventures Logo" className="header-logo-img animate-float" />
           <div className="header-text-group">
-            <h1 className="text-white">Fun Activities 🎉</h1>
-            <p className="text-white">Games, songs & Bible fun — just for you!</p>
+            <h1 className="text-white">Activities 🎉</h1>
+            <p className="text-white">Games and Bible Trivia.</p>
           </div>
         </div>
       </div>
