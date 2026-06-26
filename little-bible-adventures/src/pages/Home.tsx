@@ -30,7 +30,7 @@ export default function Home() {
   const features = [
     {
       icon: <BookOpen size={28} />,
-      label: 'Devotionals',
+      label: 'Devotional',
       desc: 'Read our latest devotionals.',
       cardClass: 'card-yellow',
       iconClass: 'bg-yellow',

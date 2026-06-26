@@ -320,7 +320,7 @@ export default function TeacherDashboard() {
             <div className="stat-icon bg-blue"><BookOpen color="white" /></div>
             <div className="stat-info">
               <h3>{internalPosts.length}</h3>
-              <p>Devotionals</p>
+              <p>Devotional</p>
             </div>
           </div>
         </div>
@@ -353,7 +353,7 @@ export default function TeacherDashboard() {
           </div>
 
           <div className="section-card card">
-            <h2 className="section-title-sm">Recent Devotionals</h2>
+            <h2 className="section-title-sm">Recent Devotional</h2>
             <div className="story-list">
               {internalPosts.length === 0 && <p style={{ fontSize: '0.9rem', color: '#666' }}>No devotionals yet.</p>}
               {internalPosts.slice(0, 3).map(post => (

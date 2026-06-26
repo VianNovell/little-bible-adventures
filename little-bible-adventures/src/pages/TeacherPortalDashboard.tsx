@@ -334,7 +334,7 @@ export default function TeacherPortalDashboard() {
         {activeTab === 'stories' && (
           <div>
             <div className="tp-section-header">
-              <h3>Devotionals</h3>
+              <h3>Devotional</h3>
               <div style={{ display: 'flex', gap: '0.5rem' }}>
                 <button className="tp-btn-outline-sm" onClick={() => setShowVerseModal(true)}><BookOpen size={14} /> Post Verse</button>
                 <button className="tp-btn-primary-sm" onClick={() => setShowBlogModal(true)}><Plus size={14} /> Write Devotional</button>
