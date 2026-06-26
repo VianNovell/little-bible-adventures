@@ -22,29 +22,7 @@ interface ActivityItem {
   icon: 'activity' | 'star' | 'shield';
 }
 
-const defaultActs: ActivityItem[] = [
-  {
-    id: 1,
-    message: <><strong>Jimmy</strong> completed the story <em>David and the Giant</em></>,
-    time: '2 hours ago',
-    iconBgClass: 'bg-yellow',
-    icon: 'activity'
-  },
-  {
-    id: 2,
-    message: <><strong>Sarah</strong> joined the <em>Sunday School Live</em> session</>,
-    time: 'Yesterday',
-    iconBgClass: 'bg-blue',
-    icon: 'star'
-  },
-  {
-    id: 3,
-    message: <><strong>Parent Settings</strong> updated successfully.</>,
-    time: 'Last week',
-    iconBgClass: 'bg-purple',
-    icon: 'shield'
-  }
-];
+const defaultActs: ActivityItem[] = [];
 
 export default function ParentDashboard() {
   const navigate = useNavigate();
@@ -56,20 +34,7 @@ export default function ParentDashboard() {
     }
   }, [userRole, navigate]);
 
-  const [kids, setKids] = useState<Kid[]>(() => {
-    const saved = localStorage.getItem('parentKids');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {
-        console.error(e);
-      }
-    }
-    return [
-      { id: 1, name: 'Jimmy', group: 'Redeemed (8-9)', avatar: 'J', colorClass: 'card-yellow', badgeClass: 'badge-kids' },
-      { id: 2, name: 'Sarah', group: 'Little Angels (6-7)', avatar: 'S', colorClass: 'card-purple', badgeClass: 'badge-toddler' },
-    ];
-  });
+  const [kids, setKids] = useState<Kid[]>([]);
 
   const [activities, setActivities] = useState<ActivityItem[]>(defaultActs);
 
