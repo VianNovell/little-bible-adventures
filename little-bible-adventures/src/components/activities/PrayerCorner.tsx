@@ -78,7 +78,7 @@ export default function PrayerCorner({ onClose }: PrayerCornerProps) {
               />
             </div>
             <button type="submit" className="btn btn-primary" style={{ width: '100%' }} disabled={isSubmitting}>
-              {isSubmitting ? "Sending..." : "Send to Teacher"}
+              {isSubmitting ? "Sending..." : "Send"}
             </button>
           </form>
         )}
